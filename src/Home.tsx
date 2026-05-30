@@ -103,7 +103,7 @@ export function Home() {
                 termsId="home-terminos"
                 onSubmit={async (username, password) => {
                   await register(username, password);
-                  navigate('/app', { replace: true });
+                  navigate('/app/explorar', { replace: true });
                 }}
                 footer={
                   <p>

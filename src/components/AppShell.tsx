@@ -63,6 +63,8 @@ const navItems: NavItem[] = [
 const navLinkClass = 'app-shell__nav-link';
 const navLinkActiveClass = 'app-shell__nav-link is-active';
 
+const routesWithoutSearch = new Set(['/app/diario', '/app/metricas', '/app/ajustes']);
+
 function navClassName(isActive: boolean): string {
   return isActive ? navLinkActiveClass : navLinkClass;
 }
@@ -70,6 +72,7 @@ function navClassName(isActive: boolean): string {
 export function AppShell({ children, title }: AppShellProps) {
   const location = useLocation();
   const { query, setQuery } = useSearch();
+  const showSearch = !routesWithoutSearch.has(location.pathname);
 
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     setQuery(event.target.value);
@@ -103,19 +106,21 @@ export function AppShell({ children, title }: AppShellProps) {
       </aside>
 
       <div className="app-shell__body">
-        <header className="app-shell__topbar">
-          <div className="app-shell__search">
-            <img src={iconSearch} alt="" />
-            <input
-              type="search"
-              placeholder="Busca"
-              aria-label="Buscar"
-              value={query}
-              onChange={handleSearchChange}
-            />
-          </div>
-          {title && <h1 className="app-shell__title">{title}</h1>}
-        </header>
+        {showSearch && (
+          <header className="app-shell__topbar">
+            <div className="app-shell__search">
+              <img src={iconSearch} alt="" />
+              <input
+                type="search"
+                placeholder="Busca"
+                aria-label="Buscar"
+                value={query}
+                onChange={handleSearchChange}
+              />
+            </div>
+          </header>
+        )}
+        {title && <h1 className="app-shell__title">{title}</h1>}
         <main className="app-shell__main">
           <div className="app-shell__content">{children}</div>
         </main>

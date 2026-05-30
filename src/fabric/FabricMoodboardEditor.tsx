@@ -22,7 +22,6 @@ import iconText from '../assets/icons/text-size.svg';
 import iconDraw from '../assets/icons/draw.svg';
 import iconCircle from '../assets/icons/circle.svg';
 import iconImage from '../assets/icons/image-add.svg';
-import iconPencil from '../assets/icons/pencil.svg';
 import './FabricMoodboardEditor.css';
 
 interface FabricMoodboardEditorProps {
@@ -87,16 +86,38 @@ export function FabricMoodboardEditor({
     return content;
   }, [onSaved]);
 
+  const saveCanvas = useCallback(async (): Promise<MoodboardContent> => {
+    setMessage(null);
+    const content = await persistCanvas();
+    const currentIds = extractFabricJson(content)
+      ? collectAssetIds(extractFabricJson(content)!)
+      : [];
+    const removed = initialAssetIds.current.filter((id) => !currentIds.includes(id));
+    for (const assetId of removed) {
+      try {
+        await deleteMedia(ownerUsername, moodboardId, assetId);
+      } catch {
+        // ignore orphan cleanup errors
+      }
+    }
+    initialAssetIds.current = currentIds;
+    if (onPersist) {
+      await onPersist(content);
+    }
+    setMessage('Guardado correctamente');
+    return content;
+  }, [persistCanvas, onPersist, ownerUsername, moodboardId]);
+
   useEffect(() => {
     if (saveRef) {
-      saveRef.current = persistCanvas;
+      saveRef.current = saveCanvas;
     }
     return () => {
       if (saveRef) {
         saveRef.current = null;
       }
     };
-  }, [saveRef, persistCanvas]);
+  }, [saveRef, saveCanvas]);
 
   useEffect(() => {
     let cancelled = false;
@@ -257,34 +278,6 @@ export function FabricMoodboardEditor({
     }
   };
 
-  const handleSave = async () => {
-    setBusy(true);
-    setMessage(null);
-    try {
-      const content = await persistCanvas();
-      const currentIds = extractFabricJson(content)
-        ? collectAssetIds(extractFabricJson(content)!)
-        : [];
-      const removed = initialAssetIds.current.filter((id) => !currentIds.includes(id));
-      for (const assetId of removed) {
-        try {
-          await deleteMedia(ownerUsername, moodboardId, assetId);
-        } catch {
-          // ignore orphan cleanup errors
-        }
-      }
-      initialAssetIds.current = currentIds;
-      if (onPersist) {
-        await onPersist(content);
-      }
-      setMessage('Guardado correctamente');
-    } catch (err) {
-      setMessage(err instanceof Error ? err.message : 'Error al guardar');
-    } finally {
-      setBusy(false);
-    }
-  };
-
   return (
     <div className="fabric-editor">
       {!readOnly && (
@@ -311,10 +304,6 @@ export function FabricMoodboardEditor({
           </button>
           <button type="button" onClick={removeSelected} disabled={loading || busy}>
             Eliminar
-          </button>
-          <button type="button" onClick={handleSave} disabled={loading || busy}>
-            <img src={iconPencil} alt="" />
-            Guardar lienzo
           </button>
           <input
             ref={fileInputRef}

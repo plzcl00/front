@@ -43,23 +43,25 @@ export function MoodboardEditorPage() {
     void load();
   }, [load]);
 
-  const handleSaveAll = async () => {
-    if (!board || !saveCanvasRef.current) return;
+  const handlePersist = useCallback(
+    async (content: MoodboardContent) => {
+      if (!board) return;
+      await updateMoodboard(username, board.id, content);
+    },
+    [board, username],
+  );
+
+  const handleSave = async () => {
+    if (!saveCanvasRef.current) return;
     setSaving(true);
     setError(null);
     try {
-      const content = await saveCanvasRef.current();
-      await updateMoodboard(username, board.id, content);
+      await saveCanvasRef.current();
+      navigate('/app');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al guardar');
-    } finally {
       setSaving(false);
     }
-  };
-
-  const handlePersist = async (content: MoodboardContent) => {
-    if (!board) return;
-    await updateMoodboard(username, board.id, content);
   };
 
   if (loading) {
@@ -93,20 +95,13 @@ export function MoodboardEditorPage() {
             type="button"
             className="btn-registro-form editor-page-save"
             disabled={saving}
-            onClick={() => void handleSaveAll()}
+            onClick={() => void handleSave()}
           >
-            {saving ? 'Guardando…' : 'Guardar en servidor'}
+            {saving ? 'Guardando…' : 'Guardar'}
           </button>
           <Link to="/app" className="editor-page-link">
             Volver
           </Link>
-          <button
-            type="button"
-            className="editor-page-btn-secondary"
-            onClick={() => navigate(`/u/${board.ownerUsername}/moodboards/${board.id}`)}
-          >
-            Vista previa
-          </button>
         </div>
         {error && <p className="editor-page-error">{error}</p>}
 

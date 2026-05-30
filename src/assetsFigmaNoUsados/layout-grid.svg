@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" fill="none" viewBox="0 0 128 128" id="layoutgrid-">
+  <rect width="42" height="97" x="17" y="16" stroke="#222222" stroke-width="7" rx="14" class="colorStroke000000 svgStroke"></rect>
+  <rect width="41" height="63" x="112" y="113" stroke="#222222" stroke-width="7" rx="14" transform="rotate(-180 112 113)" class="colorStroke000000 svgStroke"></rect>
+  <rect width="41" height="21" x="112" y="37" stroke="#222222" stroke-width="7" rx="8" transform="rotate(-180 112 37)" class="colorStroke000000 svgStroke"></rect>
+</svg>

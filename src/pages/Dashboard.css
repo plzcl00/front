@@ -1,33 +1,95 @@
 .dashboard {
   display: flex;
-  gap: 2rem;
+  gap: 1.5rem;
   align-items: flex-start;
-  padding: 2rem;
 }
 
 .dashboard-main {
   flex: 1;
+  padding: 1.5rem;
+  min-width: 0;
 }
 
-.dashboard-sidebar {
-  min-width: 200px;
-  border: 1px solid #eee;
-  padding: 1rem;
-  border-radius: 8px;
+.dashboard-header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1.25rem;
+}
+
+.dashboard-new-btn {
+  max-width: 200px;
+  color: var(--ediary-text);
+  border: none;
+  height: auto;
+  width: auto;
+  padding: 10px 20px;
+}
+
+.dashboard-new-btn:hover {
+  background-color: var(--ediary-white);
+}
+
+.dashboard-status,
+.dashboard-empty {
+  text-align: center;
+  color: var(--ediary-text);
+}
+
+.dashboard-error {
+  color: var(--ediary-error);
+  text-align: center;
 }
 
 .dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 1rem;
-  margin-top: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.25rem;
+  grid-auto-rows: minmax(180px, auto);
 }
 
 .dashboard-card {
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  background: var(--ediary-white);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-elevated);
+}
+
+.dashboard-card--tall .dashboard-card-preview {
+  min-height: 140px;
+}
+
+.dashboard-card-preview {
+  flex: 1;
+  min-height: 100px;
+  background: var(--ediary-card-placeholder);
+}
+
+.dashboard-card-body {
   padding: 1rem;
-  background: #fff;
+}
+
+.dashboard-card-body h2 {
+  font-size: 1rem;
+  margin: 0 0 0.5rem;
+  text-align: left;
+}
+
+.pill-badge--public {
+  background-color: rgba(250, 128, 149, 0.35);
+}
+
+.dashboard-card-likes {
+  font-size: 0.85rem;
+  margin: 0.5rem 0;
+  text-align: left;
 }
 
 .dashboard-card-actions {
@@ -37,11 +99,70 @@
   margin-top: 0.75rem;
 }
 
-.dashboard-card-actions a,
-.dashboard-card-actions button {
+.dashboard-card-link {
   font-size: 0.9rem;
+  font-weight: 600;
 }
 
-.dashboard-error {
-  color: #b00020;
+.dashboard-card-btn {
+  font-size: 0.85rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: var(--radius-btn);
+  border: 1px solid var(--ediary-pink);
+  background: transparent;
+  color: var(--ediary-pink);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.dashboard-card-btn:hover {
+  background: rgba(250, 128, 149, 0.15);
+}
+
+.dashboard-card-btn--danger {
+  border-color: var(--ediary-error);
+  color: var(--ediary-error);
+}
+
+.dashboard-sidebar {
+  min-width: 220px;
+  max-width: 260px;
+  padding: 1.25rem;
+  flex-shrink: 0;
+}
+
+.dashboard-sidebar-title {
+  font-size: 1.1rem;
+  margin: 0 0 1rem;
+  text-align: left;
+}
+
+.dashboard-sidebar-empty {
+  font-size: 0.9rem;
+  text-align: left;
+  margin: 0;
+}
+
+.dashboard-favorites-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.dashboard-favorites-list li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  font-size: 0.9rem;
+  text-align: left;
+}
+
+@media (max-width: 900px) {
+  .dashboard {
+    flex-direction: column;
+  }
+
+  .dashboard-sidebar {
+    max-width: none;
+    width: 100%;
+  }
 }

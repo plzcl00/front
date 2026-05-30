@@ -4,7 +4,7 @@ import { useAuth } from '../auth/AuthContext';
 import { getMoodboard } from '../api/moodboards';
 import type { Moodboard } from '../types/api';
 import { FabricMoodboardEditor } from '../fabric/FabricMoodboardEditor';
-import { MarketingHeader } from '../components/MarketingHeader';
+import { AppShell } from '../components/AppShell';
 import { MoodboardSharingPanel } from '../components/MoodboardSharingPanel';
 import './MoodboardEditorPage.css';
 
@@ -46,43 +46,46 @@ export function MoodboardViewPage() {
 
   if (loading) {
     return (
-      <>
-        <MarketingHeader />
+      <AppShell title="Moodboard">
         <p className="editor-page-status">Cargando…</p>
-      </>
+      </AppShell>
     );
   }
 
   if (error || !board || !ownerUsername) {
     return (
-      <>
-        <MarketingHeader />
+      <AppShell title="Moodboard">
         <p className="editor-page-error">{error ?? 'No encontrado'}</p>
-        <Link to="/app">Volver</Link>
-      </>
+        <Link to="/app" className="editor-page-link">
+          Volver
+        </Link>
+      </AppShell>
     );
   }
 
   return (
-    <>
-      <MarketingHeader />
-      <div className="editor-page contenido-pagina">
-        <div className="editor-page-header">
-          <h1>
-            Moodboard de {board.ownerUsername} #{board.id}
-          </h1>
+    <AppShell title={`${board.ownerUsername} · #${board.id}`}>
+      <div className="editor-page">
+        <div className="editor-page-toolbar card">
           {isOwner && (
-            <Link to={`/app/moodboards/${board.id}`}>Editar</Link>
+            <Link to={`/app/moodboards/${board.id}`} className="btn-registro-form editor-page-save">
+              Editar
+            </Link>
           )}
+          <Link to="/app" className="editor-page-link">
+            Volver
+          </Link>
         </div>
 
         <div className="editor-page-layout">
-          <FabricMoodboardEditor
-            ownerUsername={board.ownerUsername}
-            moodboardId={board.id}
-            initialContent={board.content}
-            readOnly
-          />
+          <div className="editor-page-canvas card card--elevated">
+            <FabricMoodboardEditor
+              ownerUsername={board.ownerUsername}
+              moodboardId={board.id}
+              initialContent={board.content}
+              readOnly
+            />
+          </div>
           <MoodboardSharingPanel
             moodboard={board}
             isOwner={isOwner}
@@ -90,6 +93,6 @@ export function MoodboardViewPage() {
           />
         </div>
       </div>
-    </>
+    </AppShell>
   );
 }

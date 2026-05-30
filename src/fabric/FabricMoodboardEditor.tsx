@@ -17,6 +17,11 @@ import {
   revokeAllBlobUrls,
   trackBlobUrl,
 } from './mediaAssets';
+import iconText from '../assets/icons/text-size.svg';
+import iconDraw from '../assets/icons/draw.svg';
+import iconCircle from '../assets/icons/circle.svg';
+import iconImage from '../assets/icons/image-add.svg';
+import iconPencil from '../assets/icons/pencil.svg';
 import './FabricMoodboardEditor.css';
 
 interface FabricMoodboardEditorProps {
@@ -257,12 +262,15 @@ export function FabricMoodboardEditor({
       {!readOnly && (
         <div className="fabric-toolbar">
           <button type="button" onClick={addText} disabled={loading || busy}>
+            <img src={iconText} alt="" />
             Texto
           </button>
           <button type="button" onClick={addRect} disabled={loading || busy}>
+            <img src={iconDraw} alt="" />
             Rectángulo
           </button>
           <button type="button" onClick={addCircle} disabled={loading || busy}>
+            <img src={iconCircle} alt="" />
             Círculo
           </button>
           <button
@@ -270,12 +278,14 @@ export function FabricMoodboardEditor({
             onClick={() => fileInputRef.current?.click()}
             disabled={loading || busy}
           >
+            <img src={iconImage} alt="" />
             Imagen
           </button>
           <button type="button" onClick={removeSelected} disabled={loading || busy}>
             Eliminar
           </button>
           <button type="button" onClick={handleSave} disabled={loading || busy}>
+            <img src={iconPencil} alt="" />
             Guardar lienzo
           </button>
           <input

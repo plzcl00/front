@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import './SignIn.css';
 import { MarketingHeader } from './components/MarketingHeader';
+import { Footer } from './components/Footer';
 import { useAuth } from './auth/AuthContext';
 import { ApiError } from './api/client';
 
@@ -41,8 +42,8 @@ export function SignIn() {
   return (
     <>
       <MarketingHeader />
-      <div className="contenido-pagina">
-        <div className="form-container">
+      <div className="contenido-pagina contenido-pagina--auth contenido-pagina--sign-in">
+        <div className="form-container card card--elevated">
           <h2>Accede a EDiary</h2>
 
           <form onSubmit={(e) => void handleSubmit(e)}>
@@ -84,6 +85,7 @@ export function SignIn() {
           </form>
         </div>
       </div>
+      <Footer />
     </>
   );
 }

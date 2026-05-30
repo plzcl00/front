@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  width: 100%;
 }
 
 .fabric-toolbar {
@@ -11,11 +12,34 @@
 }
 
 .fabric-toolbar button {
-  padding: 0.4rem 0.75rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background: #fff;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.45rem 0.85rem;
+  border-radius: var(--radius-btn);
+  font-family: inherit;
+  font-size: 0.9rem;
   cursor: pointer;
+  border: none;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.fabric-toolbar button:nth-child(odd) {
+  background-color: var(--ediary-pink);
+  color: var(--ediary-white);
+}
+
+.fabric-toolbar button:nth-child(even) {
+  background-color: var(--ediary-yellow);
+  color: var(--ediary-text);
+}
+
+.fabric-toolbar button:hover:not(:disabled) {
+  filter: brightness(1.05);
+}
+
+.fabric-toolbar button:active:not(:disabled) {
+  transform: scale(0.98);
 }
 
 .fabric-toolbar button:disabled {
@@ -23,15 +47,24 @@
   cursor: not-allowed;
 }
 
+.fabric-toolbar button img {
+  width: 18px;
+  height: 18px;
+}
+
 .fabric-canvas-wrap {
-  border: 1px solid #ddd;
+  border: 1px solid rgba(250, 128, 149, 0.35);
+  border-radius: var(--radius-card);
   display: inline-block;
   max-width: 100%;
   overflow: auto;
+  background: var(--ediary-white);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.04);
 }
 
 .fabric-status {
   margin: 0;
   font-size: 0.9rem;
-  color: #444;
+  color: var(--ediary-text);
+  text-align: left;
 }

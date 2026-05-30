@@ -4,7 +4,7 @@ import { useAuth } from '../auth/AuthContext';
 import { getMoodboard, updateMoodboard } from '../api/moodboards';
 import type { Moodboard, MoodboardContent } from '../types/api';
 import { FabricMoodboardEditor } from '../fabric/FabricMoodboardEditor';
-import { MarketingHeader } from '../components/MarketingHeader';
+import { AppShell } from '../components/AppShell';
 import { MoodboardSharingPanel } from '../components/MoodboardSharingPanel';
 import './MoodboardEditorPage.css';
 
@@ -60,20 +60,20 @@ export function MoodboardEditorPage() {
 
   if (loading) {
     return (
-      <>
-        <MarketingHeader />
+      <AppShell title="Editor">
         <p className="editor-page-status">Cargando moodboard…</p>
-      </>
+      </AppShell>
     );
   }
 
   if (error && !board) {
     return (
-      <>
-        <MarketingHeader />
+      <AppShell title="Editor">
         <p className="editor-page-error">{error}</p>
-        <Link to="/app">Volver al panel</Link>
-      </>
+        <Link to="/app" className="editor-page-link">
+          Volver al panel
+        </Link>
+      </AppShell>
     );
   }
 
@@ -82,38 +82,39 @@ export function MoodboardEditorPage() {
   }
 
   return (
-    <>
-      <MarketingHeader />
-      <div className="editor-page contenido-pagina">
-        <div className="editor-page-header">
-          <h1>Moodboard #{board.id}</h1>
-          <div className="editor-page-actions">
-            <button
-              type="button"
-              className="btn-registro-form"
-              disabled={saving}
-              onClick={() => void handleSaveAll()}
-            >
-              {saving ? 'Guardando…' : 'Guardar en servidor'}
-            </button>
-            <Link to="/app">Volver</Link>
-            <button
-              type="button"
-              onClick={() => navigate(`/u/${board.ownerUsername}/moodboards/${board.id}`)}
-            >
-              Vista previa
-            </button>
-          </div>
+    <AppShell title={`Moodboard #${board.id}`}>
+      <div className="editor-page">
+        <div className="editor-page-toolbar card">
+          <button
+            type="button"
+            className="btn-registro-form editor-page-save"
+            disabled={saving}
+            onClick={() => void handleSaveAll()}
+          >
+            {saving ? 'Guardando…' : 'Guardar en servidor'}
+          </button>
+          <Link to="/app" className="editor-page-link">
+            Volver
+          </Link>
+          <button
+            type="button"
+            className="editor-page-btn-secondary"
+            onClick={() => navigate(`/u/${board.ownerUsername}/moodboards/${board.id}`)}
+          >
+            Vista previa
+          </button>
         </div>
         {error && <p className="editor-page-error">{error}</p>}
 
         <div className="editor-page-layout">
-          <FabricMoodboardEditor
-            ownerUsername={board.ownerUsername}
-            moodboardId={board.id}
-            initialContent={board.content}
-            saveRef={saveCanvasRef}
-          />
+          <div className="editor-page-canvas card card--elevated">
+            <FabricMoodboardEditor
+              ownerUsername={board.ownerUsername}
+              moodboardId={board.id}
+              initialContent={board.content}
+              saveRef={saveCanvasRef}
+            />
+          </div>
           <MoodboardSharingPanel
             moodboard={board}
             isOwner
@@ -121,6 +122,6 @@ export function MoodboardEditorPage() {
           />
         </div>
       </div>
-    </>
+    </AppShell>
   );
 }

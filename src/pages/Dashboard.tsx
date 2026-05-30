@@ -11,7 +11,7 @@ import {
 } from '../api/moodboards';
 import { createEmptyMoodboardContent } from '../lib/moodboardContent';
 import type { Moodboard } from '../types/api';
-import { MarketingHeader } from '../components/MarketingHeader';
+import { AppShell } from '../components/AppShell';
 import './Dashboard.css';
 
 export function Dashboard() {
@@ -97,60 +97,72 @@ export function Dashboard() {
   };
 
   return (
-    <>
-      <MarketingHeader />
-      <div className="dashboard contenido-pagina">
-        <div className="dashboard-main">
-          <h1>Mis moodboards</h1>
-          <button
-            type="button"
-            className="btn-registro-form"
-            disabled={busy}
-            onClick={() => void handleCreate()}
-          >
-            Nuevo moodboard
-          </button>
+    <AppShell title="Mis moodboards">
+      <div className="dashboard">
+        <div className="dashboard-main card card--elevated">
+          <div className="dashboard-header">
+            <button
+              type="button"
+              className="btn-registro dashboard-new-btn"
+              disabled={busy}
+              onClick={() => void handleCreate()}
+            >
+              Nuevo moodboard
+            </button>
+          </div>
 
-          {loading && <p>Cargando…</p>}
+          {loading && <p className="dashboard-status">Cargando…</p>}
           {error && <p className="dashboard-error">{error}</p>}
 
           <div className="dashboard-grid">
-            {boards.map((board) => (
-              <article key={board.id} className="dashboard-card">
-                <h2>Moodboard #{board.id}</h2>
-                <p>{board.isPublic ? 'Público' : 'Privado'}</p>
-                <p>Me gusta: {likeCounts[board.id] ?? '—'}</p>
-                <div className="dashboard-card-actions">
-                  <Link to={`/app/moodboards/${board.id}`}>Editar</Link>
-                  <button
-                    type="button"
-                    disabled={busy}
-                    onClick={() => void handleTogglePublic(board)}
-                  >
-                    {board.isPublic ? 'Privado' : 'Público'}
-                  </button>
-                  <button
-                    type="button"
-                    disabled={busy}
-                    onClick={() => void handleDelete(board.id)}
-                  >
-                    Eliminar
-                  </button>
+            {boards.map((board, index) => (
+              <article
+                key={board.id}
+                className={`dashboard-card ${index % 3 === 1 ? 'dashboard-card--tall' : ''}`}
+              >
+                <div className="dashboard-card-preview" aria-hidden />
+                <div className="dashboard-card-body">
+                  <h2>Moodboard #{board.id}</h2>
+                  <span className={`pill-badge ${board.isPublic ? 'pill-badge--public' : ''}`}>
+                    {board.isPublic ? 'Público' : 'Privado'}
+                  </span>
+                  <p className="dashboard-card-likes">Me gusta: {likeCounts[board.id] ?? 0}</p>
+                  <div className="dashboard-card-actions">
+                    <Link to={`/app/moodboards/${board.id}`} className="dashboard-card-link">
+                      Editar
+                    </Link>
+                    <button
+                      type="button"
+                      className="dashboard-card-btn"
+                      disabled={busy}
+                      onClick={() => void handleTogglePublic(board)}
+                    >
+                      {board.isPublic ? 'Privado' : 'Público'}
+                    </button>
+                    <button
+                      type="button"
+                      className="dashboard-card-btn dashboard-card-btn--danger"
+                      disabled={busy}
+                      onClick={() => void handleDelete(board.id)}
+                    >
+                      Eliminar
+                    </button>
+                  </div>
                 </div>
               </article>
             ))}
           </div>
           {!loading && boards.length === 0 && (
-            <p>Aún no tienes moodboards. Crea el primero.</p>
+            <p className="dashboard-empty">Aún no tienes moodboards. Crea el primero.</p>
           )}
         </div>
 
-        <aside className="dashboard-sidebar">
-          <h2>Mis favoritos</h2>
+        <aside className="dashboard-sidebar card card--elevated">
+          <h2 className="dashboard-sidebar-title">Mis favoritos</h2>
           {likedIds.length === 0 ? (
-            <p>No has marcado moodboards con me gusta.</p>
+            <p className="dashboard-sidebar-empty">No has marcado moodboards con me gusta.</p>
           ) : (
-            <ul>
+            <ul className="dashboard-favorites-list">
               {likedIds.map((id) => (
                 <li key={id}>Moodboard #{id}</li>
               ))}
@@ -158,6 +170,6 @@ export function Dashboard() {
           )}
         </aside>
       </div>
-    </>
+    </AppShell>
   );
 }

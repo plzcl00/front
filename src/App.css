@@ -1,7 +1,1 @@
-a.btn-registro,
-a.btn-inicio-sesion {
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
+/* Route-specific overrides; globals in styles/global.css */

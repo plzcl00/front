@@ -1,7 +1,9 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './SignUp.css';
+import googleIcon from './assets/icons/google.svg';
 import { MarketingHeader } from './components/MarketingHeader';
+import { Footer } from './components/Footer';
 import { useAuth } from './auth/AuthContext';
 import { ApiError } from './api/client';
 
@@ -40,10 +42,16 @@ export function SignUp() {
   return (
     <>
       <MarketingHeader />
-      <div className="contenido-pagina">
-        <div className="form-container">
+      <div className="contenido-pagina contenido-pagina--auth contenido-pagina--sign-up">
+        <div className="form-container card card--elevated">
           <h2>Bienvenido a EDiary</h2>
           <p>Descúbrete a ti mismo.</p>
+
+          <button type="button" className="btn-google" disabled title="Próximamente">
+            <img src={googleIcon} alt="" />
+            Regístrate con Google
+          </button>
+          <p className="form-divider">o</p>
 
           <form onSubmit={(e) => void handleSubmit(e)}>
             <div className="form-group">
@@ -72,7 +80,7 @@ export function SignUp() {
                 required
                 minLength={6}
               />
-              <p>Al menos 6 caracteres.</p>
+              <p className="form-hint">Al menos 6 caracteres.</p>
             </div>
 
             <div className="form-group-checkbox">
@@ -101,6 +109,7 @@ export function SignUp() {
           </form>
         </div>
       </div>
+      <Footer />
     </>
   );
 }

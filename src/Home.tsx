@@ -1,10 +1,12 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Home.css';
-import imagenMuestra from './assets/processing.svg';
-import logo from './assets/processing.svg';
+import imagenMuestra from './assets/imagen-muestra.jpg';
 import imagenDecoracion from './assets/processing.svg';
+import iconCalendar from './assets/icons/calendar.svg';
+import iconGraphics from './assets/icons/graphics.svg';
 import { MarketingHeader } from './components/MarketingHeader';
+import { Footer } from './components/Footer';
 import { useAuth } from './auth/AuthContext';
 import { ApiError } from './api/client';
 
@@ -41,49 +43,63 @@ export function Home() {
       <MarketingHeader />
 
       <div className="contenido-pagina">
-        <div className="bienvenida">
+        <section className="bienvenida">
           <h1>Expresa tus emociones y explora.</h1>
           <p>Encuentra un lugar para tus pensamientos.</p>
-          <div>
-            <img className="imagen-muestra1" src={imagenMuestra} alt="imagen-muestra" />
+          <div className="section-visual">
+            <img className="imagen-muestra1" src={imagenMuestra} alt="Moodboards" />
           </div>
           <hr />
-        </div>
+        </section>
 
-        <div className="bienvenida">
+        <section className="bienvenida">
           <h1>Escribe lo que sientes en tu diario.</h1>
           <p>
-            Crea moodboards visuales con texto, formas e imágenes para representar tu
-            estado de ánimo.
+            Puedes representar sentimientos, tu estado de ánimo e ideas del día a día a
+            través de anotaciones, gráficos y hasta vídeos.
           </p>
-          <div>
-            <img className="imagen-muestra1" src={imagenMuestra} alt="imagen-muestra" />
+          <div className="section-visual">
+            <img className="imagen-muestra1" src={imagenMuestra} alt="Diario" />
           </div>
           <hr />
-        </div>
+        </section>
 
-        <div className="bienvenida">
-          <h1>Comparte con quien quieras.</h1>
+        <section className="bienvenida">
+          <h1>Conócete a ti mismo.</h1>
           <p>
-            Controla la visibilidad, concede permisos y recibe me gusta en tus
-            moodboards.
+            Mediante quiz diarios, E-Diary genera métricas que te ayudarán a
+            comprenderte y mejorar hábitos.
           </p>
-          <div>
-            <img className="imagen-muestra1" src={imagenMuestra} alt="imagen-muestra" />
+          <div className="section-visual">
+            <img className="imagen-muestra1" src={imagenMuestra} alt="Métricas" />
+            <img className="section-icon" src={iconGraphics} alt="" />
           </div>
           <hr />
-        </div>
+        </section>
 
-        <div className="bienvenida2">
+        <section className="bienvenida">
+          <h1>Organiza tu agenda.</h1>
+          <p>
+            Gestiona eventos a través de nuestro calendario. E-Diary te notificará de
+            los próximos planes.
+          </p>
+          <div className="section-visual">
+            <img className="imagen-muestra1" src={imagenMuestra} alt="Calendario" />
+            <img className="section-icon" src={iconCalendar} alt="" />
+          </div>
+          <hr />
+        </section>
+
+        <section className="bienvenida2">
           <div className="sub-bienvenida1">
             <img className="imagen-muestra2" src={imagenMuestra} alt="" />
           </div>
           <div className="sub-bienvenida2">
-            <h1>Empieza ahora</h1>
+            <h1>App para pc.</h1>
             <p>
               {isAuthenticated
                 ? 'Ya has iniciado sesión. Ve a tus moodboards.'
-                : 'Regístrate y crea tu primer moodboard.'}
+                : 'Estamos trabajando para que tengas la mejor experiencia en cualquier dispositivo.'}
             </p>
             {isAuthenticated && (
               <Link to="/app" className="btn-registro-form">
@@ -91,7 +107,7 @@ export function Home() {
               </Link>
             )}
           </div>
-        </div>
+        </section>
 
         {!isAuthenticated && (
           <div className="decoracion">
@@ -121,6 +137,9 @@ export function Home() {
                     required
                     minLength={6}
                   />
+                  <p className="form-hint">
+                    Debe tener al menos 6 caracteres.
+                  </p>
                 </div>
 
                 <div className="form-group-checkbox">
@@ -148,20 +167,12 @@ export function Home() {
                 </p>
               </form>
             </div>
-            <img src={imagenDecoracion} alt="processing" />
+            <img src={imagenDecoracion} alt="" />
           </div>
         )}
       </div>
 
-      <footer>
-        <img className="logo" src={logo} alt="logo" />
-        <div className="footer-terminos">
-          <p>Términos de uso</p>
-          <p>Política de Privacidad</p>
-          <p>Soporte</p>
-          <p>Contacto</p>
-        </div>
-      </footer>
+      <Footer />
     </>
   );
 }

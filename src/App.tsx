@@ -7,6 +7,8 @@ import { SignUp } from './SignUp';
 import { Dashboard } from './pages/Dashboard';
 import { MoodboardEditorPage } from './pages/MoodboardEditorPage';
 import { MoodboardViewPage } from './pages/MoodboardViewPage';
+import { FavoritesPage } from './pages/FavoritesPage';
+import { SettingsPage } from './pages/SettingsPage';
 import './App.css';
 
 export function App() {
@@ -22,6 +24,22 @@ export function App() {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/app/favoritos"
+            element={
+              <ProtectedRoute>
+                <FavoritesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/app/ajustes"
+            element={
+              <ProtectedRoute>
+                <SettingsPage />
               </ProtectedRoute>
             }
           />

@@ -156,3 +156,7 @@ sketch
 
 # End of https://www.toptal.com/developers/gitignore/api/node,react
 .idea/
+
+# Figma source (large binary; use exported assets in src/assets)
+*.fig
+emotion-diary-web.fig

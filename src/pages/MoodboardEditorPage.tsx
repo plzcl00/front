@@ -49,13 +49,17 @@ export function MoodboardEditorPage() {
     setError(null);
     try {
       const content = await saveCanvasRef.current();
-      const updated = await updateMoodboard(username, board.id, content);
-      setBoard(updated);
+      await updateMoodboard(username, board.id, content);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al guardar');
     } finally {
       setSaving(false);
     }
+  };
+
+  const handlePersist = async (content: MoodboardContent) => {
+    if (!board) return;
+    await updateMoodboard(username, board.id, content);
   };
 
   if (loading) {
@@ -113,6 +117,7 @@ export function MoodboardEditorPage() {
               moodboardId={board.id}
               initialContent={board.content}
               saveRef={saveCanvasRef}
+              onPersist={handlePersist}
             />
           </div>
           <MoodboardSharingPanel

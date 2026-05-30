@@ -3,6 +3,7 @@ import type { MoodboardContent } from '../types/api';
 export const CANVAS_WIDTH = 900;
 export const CANVAS_HEIGHT = 600;
 export const FABRIC_ELEMENT_ID = 'main';
+export const CANVAS_FONT_FAMILY = 'Montserrat, sans-serif';
 
 export function createEmptyMoodboardContent(): MoodboardContent {
   return {
@@ -17,7 +18,7 @@ export function createEmptyMoodboardContent(): MoodboardContent {
         id: FABRIC_ELEMENT_ID,
         type: 'fabric',
         fabricJson: {
-          version: '6.5.4',
+          version: '7.4.0',
           objects: [],
           background: '#ffffff',
         },

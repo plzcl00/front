@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import {
   createMoodboard,
@@ -16,7 +16,6 @@ import './Dashboard.css';
 
 export function Dashboard() {
   const { session } = useAuth();
-  const navigate = useNavigate();
   const username = session!.username;
 
   const [boards, setBoards] = useState<Moodboard[]>([]);
@@ -63,10 +62,11 @@ export function Dashboard() {
     setBusy(true);
     setError(null);
     try {
-      const created = await createMoodboard(username, createEmptyMoodboardContent());
-      navigate(`/app/moodboards/${created.id}`);
+      await createMoodboard(username, createEmptyMoodboardContent());
+      await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo crear el moodboard');
+    } finally {
       setBusy(false);
     }
   };

@@ -4,6 +4,7 @@ import type { MoodboardContent } from '../types/api';
 import { uploadMedia, deleteMedia } from '../api/moodboards';
 import {
   buildContentFromFabric,
+  CANVAS_FONT_FAMILY,
   CANVAS_HEIGHT,
   CANVAS_WIDTH,
   extractFabricJson,
@@ -30,7 +31,27 @@ interface FabricMoodboardEditorProps {
   initialContent: MoodboardContent;
   readOnly?: boolean;
   onSaved?: (content: MoodboardContent) => void;
+  onPersist?: (content: MoodboardContent) => Promise<void>;
   saveRef?: React.MutableRefObject<(() => Promise<MoodboardContent>) | null>;
+}
+
+function applyReadOnly(canvas: Canvas) {
+  canvas.selection = false;
+  canvas.forEachObject((obj) => {
+    obj.selectable = false;
+    obj.evented = false;
+  });
+}
+
+function tuneTextObjects(canvas: Canvas) {
+  canvas.forEachObject((obj) => {
+    if (obj.type === 'i-text' || obj.type === 'textbox' || obj.type === 'text') {
+      obj.set({
+        fontFamily: CANVAS_FONT_FAMILY,
+        objectCaching: false,
+      });
+    }
+  });
 }
 
 export function FabricMoodboardEditor({
@@ -39,12 +60,14 @@ export function FabricMoodboardEditor({
   initialContent,
   readOnly = false,
   onSaved,
+  onPersist,
   saveRef,
 }: FabricMoodboardEditorProps) {
   const canvasElRef = useRef<HTMLCanvasElement>(null);
   const fabricRef = useRef<Canvas | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const initialAssetIds = useRef<number[]>([]);
+  const initialContentRef = useRef(initialContent);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -83,16 +106,18 @@ export function FabricMoodboardEditor({
     }
 
     revokeAllBlobUrls();
+    setLoading(true);
 
     const canvas = new Canvas(canvasEl, {
-      width: initialContent.canvas?.width ?? CANVAS_WIDTH,
-      height: initialContent.canvas?.height ?? CANVAS_HEIGHT,
-      backgroundColor: initialContent.canvas?.background ?? '#ffffff',
+      width: initialContentRef.current.canvas?.width ?? CANVAS_WIDTH,
+      height: initialContentRef.current.canvas?.height ?? CANVAS_HEIGHT,
+      backgroundColor: initialContentRef.current.canvas?.background ?? '#ffffff',
       selection: !readOnly,
+      enableRetinaScaling: true,
     });
     fabricRef.current = canvas;
 
-    const rawJson = extractFabricJson(initialContent);
+    const rawJson = extractFabricJson(initialContentRef.current);
     initialAssetIds.current = rawJson ? collectAssetIds(rawJson) : [];
 
     (async () => {
@@ -105,8 +130,14 @@ export function FabricMoodboardEditor({
           );
           if (!cancelled) {
             await canvas.loadFromJSON(hydrated);
+            tuneTextObjects(canvas);
+            if (readOnly) {
+              applyReadOnly(canvas);
+            }
             canvas.renderAll();
           }
+        } else if (readOnly) {
+          applyReadOnly(canvas);
         }
       } catch (err) {
         if (!cancelled) {
@@ -121,21 +152,13 @@ export function FabricMoodboardEditor({
       }
     })();
 
-    if (readOnly) {
-      canvas.selection = false;
-      canvas.forEachObject((obj) => {
-        obj.selectable = false;
-        obj.evented = false;
-      });
-    }
-
     return () => {
       cancelled = true;
       canvas.dispose();
       fabricRef.current = null;
       revokeAllBlobUrls();
     };
-  }, [initialContent, ownerUsername, moodboardId, readOnly]);
+  }, [ownerUsername, moodboardId, readOnly]);
 
   const addText = () => {
     const canvas = fabricRef.current;
@@ -145,6 +168,8 @@ export function FabricMoodboardEditor({
       top: 80,
       fontSize: 24,
       fill: '#333333',
+      fontFamily: CANVAS_FONT_FAMILY,
+      objectCaching: false,
     });
     canvas.add(text);
     canvas.setActiveObject(text);
@@ -249,6 +274,9 @@ export function FabricMoodboardEditor({
         }
       }
       initialAssetIds.current = currentIds;
+      if (onPersist) {
+        await onPersist(content);
+      }
       setMessage('Guardado correctamente');
     } catch (err) {
       setMessage(err instanceof Error ? err.message : 'Error al guardar');

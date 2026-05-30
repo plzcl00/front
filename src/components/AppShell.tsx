@@ -16,7 +16,8 @@ type NavItem = {
   to: string;
   label: string;
   icon: string;
-  isActive: (pathname: string) => boolean;
+  end?: boolean;
+  isActive?: (pathname: string) => boolean;
 };
 
 const navItems: NavItem[] = [
@@ -24,30 +25,31 @@ const navItems: NavItem[] = [
     to: '/app',
     label: 'Inicio',
     icon: iconHome,
-    isActive: (pathname) => pathname === '/app',
+    end: true,
   },
   {
     to: '/app',
     label: 'Moodboards',
     icon: iconGrid,
     isActive: (pathname) =>
-        pathname === '/app' ||
-        pathname.startsWith('/app/moodboards') ||
-        pathname.startsWith('/u/'),
+      pathname.startsWith('/app/moodboards') ||
+      pathname.startsWith('/u/'),
   },
   {
     to: '/app/favoritos',
     label: 'Favoritos',
     icon: iconHeart,
-    isActive: (pathname) => pathname.startsWith('/app/favoritos'),
   },
   {
     to: '/app/ajustes',
     label: 'Ajustes',
     icon: iconSettings,
-    isActive: (pathname) => pathname.startsWith('/app/ajustes'),
   },
 ];
+
+function navClassName(isActive: boolean) {
+  return isActive ? 'app-shell__nav-link is-active' : 'app-shell__nav-link';
+}
 
 export function AppShell({ children, title }: AppShellProps) {
   const location = useLocation();
@@ -59,21 +61,26 @@ export function AppShell({ children, title }: AppShellProps) {
           <img src={logo} alt="E-Diary" />
         </Link>
         <nav className="app-shell__nav">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.label}
-              to={item.to}
-              className={() =>
-                item.isActive(location.pathname)
-                  ? 'app-shell__nav-link is-active'
-                  : 'app-shell__nav-link'
-              }
-              title={item.label}
-            >
-              <img src={item.icon} alt="" draggable={false} />
-              <span className="visually-hidden">{item.label}</span>
-            </NavLink>
-          ))}
+          {navItems.map((item) => {
+            const active = item.isActive
+              ? item.isActive(location.pathname)
+              : undefined;
+
+            return (
+              <NavLink
+                key={item.label}
+                to={item.to}
+                end={item.end}
+                className={({ isActive: routerActive }) =>
+                  navClassName(active ?? routerActive)
+                }
+                title={item.label}
+              >
+                <img src={item.icon} alt="" draggable={false} />
+                <span className="visually-hidden">{item.label}</span>
+              </NavLink>
+            );
+          })}
         </nav>
       </aside>
 

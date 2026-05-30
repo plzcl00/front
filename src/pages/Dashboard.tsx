@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import {
   createMoodboard,
@@ -17,6 +17,7 @@ import './Dashboard.css';
 export function Dashboard() {
   const { session } = useAuth();
   const username = session!.username;
+  const navigate = useNavigate();
 
   const [boards, setBoards] = useState<Moodboard[]>([]);
   const [likedIds, setLikedIds] = useState<number[]>([]);
@@ -62,11 +63,10 @@ export function Dashboard() {
     setBusy(true);
     setError(null);
     try {
-      await createMoodboard(username, createEmptyMoodboardContent());
-      await load();
+      const created = await createMoodboard(username, createEmptyMoodboardContent());
+      navigate(`/app/moodboards/${created.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo crear el moodboard');
-    } finally {
       setBusy(false);
     }
   };
@@ -120,34 +120,36 @@ export function Dashboard() {
                 key={board.id}
                 className={`dashboard-card ${index % 3 === 1 ? 'dashboard-card--tall' : ''}`}
               >
-                <div className="dashboard-card-preview" aria-hidden />
-                <div className="dashboard-card-body">
-                  <h2>Moodboard #{board.id}</h2>
-                  <span className={`pill-badge ${board.isPublic ? 'pill-badge--public' : ''}`}>
-                    {board.isPublic ? 'Público' : 'Privado'}
-                  </span>
-                  <p className="dashboard-card-likes">Me gusta: {likeCounts[board.id] ?? 0}</p>
-                  <div className="dashboard-card-actions">
-                    <Link to={`/app/moodboards/${board.id}`} className="dashboard-card-link">
-                      Editar
-                    </Link>
-                    <button
-                      type="button"
-                      className="dashboard-card-btn"
-                      disabled={busy}
-                      onClick={() => void handleTogglePublic(board)}
-                    >
-                      {board.isPublic ? 'Privado' : 'Público'}
-                    </button>
-                    <button
-                      type="button"
-                      className="dashboard-card-btn dashboard-card-btn--danger"
-                      disabled={busy}
-                      onClick={() => void handleDelete(board.id)}
-                    >
-                      Eliminar
-                    </button>
+                <Link
+                  to={`/app/moodboards/${board.id}`}
+                  className="dashboard-card-link"
+                >
+                  <div className="dashboard-card-preview" aria-hidden />
+                  <div className="dashboard-card-body">
+                    <h2>Moodboard #{board.id}</h2>
+                    <span className={`pill-badge ${board.isPublic ? 'pill-badge--public' : ''}`}>
+                      {board.isPublic ? 'Público' : 'Privado'}
+                    </span>
+                    <p className="dashboard-card-likes">Me gusta: {likeCounts[board.id] ?? 0}</p>
                   </div>
+                </Link>
+                <div className="dashboard-card-actions">
+                  <button
+                    type="button"
+                    className="dashboard-card-btn"
+                    disabled={busy}
+                    onClick={() => void handleTogglePublic(board)}
+                  >
+                    {board.isPublic ? 'Privado' : 'Público'}
+                  </button>
+                  <button
+                    type="button"
+                    className="dashboard-card-btn dashboard-card-btn--danger"
+                    disabled={busy}
+                    onClick={() => void handleDelete(board.id)}
+                  >
+                    Eliminar
+                  </button>
                 </div>
               </article>
             ))}

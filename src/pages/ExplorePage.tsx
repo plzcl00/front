@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { getLikeCount, listPublicMoodboards } from '../api/moodboards';
+import { listPublicMoodboards } from '../api/moodboards';
 import { AppShell } from '../components/AppShell';
 import { FeedCardThumbnail } from '../components/FeedCardThumbnail';
 import { moodboardDisplayName } from '../lib/moodboardDisplay';
@@ -14,7 +14,6 @@ const PAGE_SIZE = 24;
 export function ExplorePage() {
   const { query } = useSearch();
   const [items, setItems] = useState<PublicMoodboardFeedItem[]>([]);
-  const [likeCounts, setLikeCounts] = useState<Record<number, number>>({});
   const [page, setPage] = useState(0);
   const [hasNext, setHasNext] = useState(false);
   const [totalItems, setTotalItems] = useState(0);
@@ -22,44 +21,26 @@ export function ExplorePage() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const loadLikeCounts = useCallback(async (boards: PublicMoodboardFeedItem[]) => {
-    const counts: Record<number, number> = {};
-    await Promise.all(
-      boards.map(async (board) => {
-        try {
-          counts[board.id] = await getLikeCount(board.ownerUsername, board.id);
-        } catch {
-          counts[board.id] = 0;
-        }
-      }),
-    );
-    setLikeCounts((prev) => ({ ...prev, ...counts }));
+  const loadPage = useCallback(async (pageIndex: number, append: boolean) => {
+    if (append) {
+      setLoadingMore(true);
+    } else {
+      setLoading(true);
+    }
+    setError(null);
+    try {
+      const result = await listPublicMoodboards(pageIndex, PAGE_SIZE);
+      setPage(result.page);
+      setHasNext(result.hasNext);
+      setTotalItems(result.totalItems);
+      setItems((prev) => (append ? [...prev, ...result.items] : result.items));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'No se pudo cargar el feed');
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
   }, []);
-
-  const loadPage = useCallback(
-    async (pageIndex: number, append: boolean) => {
-      if (append) {
-        setLoadingMore(true);
-      } else {
-        setLoading(true);
-      }
-      setError(null);
-      try {
-        const result = await listPublicMoodboards(pageIndex, PAGE_SIZE);
-        setPage(result.page);
-        setHasNext(result.hasNext);
-        setTotalItems(result.totalItems);
-        setItems((prev) => (append ? [...prev, ...result.items] : result.items));
-        void loadLikeCounts(result.items);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'No se pudo cargar el feed');
-      } finally {
-        setLoading(false);
-        setLoadingMore(false);
-      }
-    },
-    [loadLikeCounts],
-  );
 
   useEffect(() => {
     void loadPage(0, false);
@@ -79,7 +60,11 @@ export function ExplorePage() {
     <AppShell title="Explorar">
       <div className="explore-page card card--elevated">
         {loading && <p className="explore-page-status">Cargando…</p>}
-        {error && <p className="explore-page-error">{error}</p>}
+        {error && (
+          <p className="explore-page-error" role="alert">
+            {error}
+          </p>
+        )}
 
         {!loading && items.length === 0 && !error && (
           <p className="explore-page-empty">
@@ -111,7 +96,7 @@ export function ExplorePage() {
                   <h2>{moodboardDisplayName(board)}</h2>
                   <span className="pill-badge pill-badge--public">Público</span>
                   <p className="dashboard-card-likes">
-                    Me gusta: {likeCounts[board.id] ?? 0}
+                    Me gusta: {board.likeCount ?? 0}
                   </p>
                 </div>
               </Link>

@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../auth/AuthContext';
+import { useSession } from '../auth/useSession';
 import {
   createMoodboard,
   deleteMoodboard,
   getLikedMoodboards,
-  getLikeCount,
   listMoodboards,
   setVisibility,
 } from '../api/moodboards';
@@ -13,22 +12,22 @@ import { createEmptyMoodboardContent } from '../lib/moodboardContent';
 import { moodboardDisplayName } from '../lib/moodboardDisplay';
 import type { LikedMoodboardSummary, Moodboard } from '../types/api';
 import { AppShell } from '../components/AppShell';
+import { ConfirmDialog } from '../components/ConfirmDialog';
 import { matchesMoodboardSearch, useSearch } from '../search/SearchContext';
 import { MoodboardCardThumbnail } from '../components/MoodboardCardThumbnail';
 import './Dashboard.css';
 
 export function Dashboard() {
-  const { session } = useAuth();
-  const username = session!.username;
+  const { username } = useSession();
   const navigate = useNavigate();
   const { query } = useSearch();
 
   const [boards, setBoards] = useState<Moodboard[]>([]);
   const [likedBoards, setLikedBoards] = useState<LikedMoodboardSummary[]>([]);
-  const [likeCounts, setLikeCounts] = useState<Record<number, number>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<number | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -40,18 +39,6 @@ export function Dashboard() {
       ]);
       setBoards(list);
       setLikedBoards(liked);
-
-      const counts: Record<number, number> = {};
-      await Promise.all(
-        list.map(async (b) => {
-          try {
-            counts[b.id] = await getLikeCount(username, b.id);
-          } catch {
-            counts[b.id] = 0;
-          }
-        }),
-      );
-      setLikeCounts(counts);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudieron cargar los moodboards');
     } finally {
@@ -76,10 +63,10 @@ export function Dashboard() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('¿Eliminar este moodboard?')) return;
     setBusy(true);
     try {
       await deleteMoodboard(username, id);
+      setDeleteTarget(null);
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al eliminar');
@@ -122,7 +109,11 @@ export function Dashboard() {
           </div>
 
           {loading && <p className="dashboard-status">Cargando…</p>}
-          {error && <p className="dashboard-error">{error}</p>}
+          {error && (
+            <p className="dashboard-error" role="alert">
+              {error}
+            </p>
+          )}
 
           <div className="dashboard-grid">
             {filteredBoards.map((board, index) => (
@@ -145,7 +136,7 @@ export function Dashboard() {
                     <span className={`pill-badge ${board.isPublic ? 'pill-badge--public' : ''}`}>
                       {board.isPublic ? 'Público' : 'Privado'}
                     </span>
-                    <p className="dashboard-card-likes">Me gusta: {likeCounts[board.id] ?? 0}</p>
+                    <p className="dashboard-card-likes">Me gusta: {board.likeCount ?? 0}</p>
                   </div>
                 </Link>
                 <div className="dashboard-card-actions">
@@ -161,7 +152,7 @@ export function Dashboard() {
                     type="button"
                     className="dashboard-card-btn dashboard-card-btn--danger"
                     disabled={busy}
-                    onClick={() => void handleDelete(board.id)}
+                    onClick={() => setDeleteTarget(board.id)}
                   >
                     Eliminar
                   </button>
@@ -186,7 +177,7 @@ export function Dashboard() {
           ) : (
             <ul className="dashboard-favorites-list">
               {filteredLikedBoards.map((liked) => (
-                <li key={liked.id}>
+                <li key={`${liked.ownerUsername}-${liked.id}`}>
                   <Link to={`/u/${liked.ownerUsername}/moodboards/${liked.id}`}>
                     {moodboardDisplayName(liked)}
                   </Link>
@@ -196,6 +187,19 @@ export function Dashboard() {
           )}
         </aside>
       </div>
+
+      <ConfirmDialog
+        open={deleteTarget !== null}
+        title="Eliminar moodboard"
+        message="¿Eliminar este moodboard? Esta acción no se puede deshacer."
+        confirmLabel="Eliminar"
+        onCancel={() => setDeleteTarget(null)}
+        onConfirm={() => {
+          if (deleteTarget !== null) {
+            void handleDelete(deleteTarget);
+          }
+        }}
+      />
     </AppShell>
   );
 }

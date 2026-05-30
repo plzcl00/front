@@ -41,6 +41,7 @@ interface FabricMoodboardEditorProps {
   onPersist?: (content: MoodboardContent) => Promise<void>;
   saveRef?: MutableRefObject<(() => Promise<MoodboardContent>) | null>;
   exportThumbnailRef?: MutableRefObject<(() => Promise<Blob>) | null>;
+  publicAccess?: boolean;
 }
 
 function applyReadOnly(canvas: Canvas) {
@@ -84,6 +85,7 @@ export function FabricMoodboardEditor({
   onPersist,
   saveRef,
   exportThumbnailRef,
+  publicAccess = false,
 }: FabricMoodboardEditorProps) {
   const canvasElRef = useRef<HTMLCanvasElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -271,6 +273,8 @@ export function FabricMoodboardEditor({
             rawJson,
             ownerUsername,
             moodboardId,
+            undefined,
+            { auth: !publicAccess },
           );
           if (!cancelled) {
             await canvas.loadFromJSON(hydrated);
@@ -580,7 +584,7 @@ export function FabricMoodboardEditor({
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*,video/*"
+            accept="image/*"
             hidden
             onChange={(e) => {
               const file = e.target.files?.[0];

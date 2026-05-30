@@ -1,42 +1,34 @@
+import { Link } from 'react-router-dom';
+import { MarketingHeader } from './components/MarketingHeader';
+import { Footer } from './components/Footer';
 import './ResetPassword.css';
-import logo from './assets/Ediary.png';
 
 export function ResetPassword() {
-    return (
-        <>
-            {/*Header*/}
-            <header>
-                <img className='logo' src={logo} alt='logo' />
-                <div className='botones-encabezado'>
-                    <button type="submit" className="btn-idioma">Idioma</button>
-                    <button type="submit" className="btn-registro">Registrarse</button>
-                    <button type="submit" className="btn-inicio-sesion">Iniciar sesión</button>
-                </div>
-            </header>
+  return (
+    <>
+      <MarketingHeader />
+      <div className="contenido-pagina contenido-pagina--auth">
+        <div className="form-container card card--elevated">
+          <h2>Reestablecer contraseña</h2>
+          <p>Próximamente.</p>
 
-            {/**Formulario */}
-            <div className='contenido-pagina'>
-                <div className="form-container">
-                    <h2>Reestablecer contraseña</h2>
-                    <p></p>
-
-                    <form action="#" method="POST">
-                        <div className="form-group">
-                            <label htmlFor="nombre">Correo Electrónico</label>
-                            <input type="text" id="nombre" name="nombre" required />
-                        </div>
-
-                        <button type="submit" className="btn-registro-form">Restablecer contraseña</button>
-
-                        <p>Volver al
-                            <a href=""> Incio.</a>
-                        </p>
-                         <p>Volver a enviar
-                            <a href=""> link de reestablecimiento.</a>
-                        </p>
-                    </form>
-                </div>
+          <form action="#" method="POST">
+            <div className="form-group">
+              <label htmlFor="reset-email">Correo electrónico</label>
+              <input type="email" id="reset-email" name="email" disabled />
             </div>
-        </>
-    )
+
+            <button type="submit" className="btn-registro-form" disabled>
+              Restablecer contraseña
+            </button>
+
+            <p>
+              Volver al <Link to="/sign-in">inicio de sesión</Link>.
+            </p>
+          </form>
+        </div>
+      </div>
+      <Footer />
+    </>
+  );
 }

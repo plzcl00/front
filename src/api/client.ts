@@ -52,6 +52,11 @@ export async function apiRequest<T>(
       throw new ApiError(401, 'Sesión no válida');
     }
     headers.Authorization = `Bearer ${token}`;
+  } else {
+    const token = getToken();
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
   }
 
   if (body !== undefined && !formData) {
@@ -85,18 +90,30 @@ export async function apiRequest<T>(
   return (await res.blob()) as T;
 }
 
-export async function apiRequestBytes(path: string): Promise<Blob> {
-  const token = getToken();
-  if (!token) {
-    handleUnauthorized();
-    throw new ApiError(401, 'Sesión no válida');
+export async function apiRequestBytes(
+  path: string,
+  options: { auth?: boolean } = {},
+): Promise<Blob> {
+  const { auth = true } = options;
+  const headers: Record<string, string> = {};
+
+  if (auth) {
+    const token = getToken();
+    if (!token) {
+      handleUnauthorized();
+      throw new ApiError(401, 'Sesión no válida');
+    }
+    headers.Authorization = `Bearer ${token}`;
+  } else {
+    const token = getToken();
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
   }
 
-  const res = await fetch(`${API_URL}${path}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const res = await fetch(`${API_URL}${path}`, { headers });
 
-  if (res.status === 401) {
+  if (res.status === 401 && auth) {
     handleUnauthorized();
     throw new ApiError(401, 'Sesión expirada');
   }

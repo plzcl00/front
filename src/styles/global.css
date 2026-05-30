@@ -29,13 +29,15 @@ body {
   min-height: 100vh;
 }
 
-h1,
-p {
+.contenido-pagina h1,
+.contenido-pagina p,
+footer p {
   text-align: center;
   color: var(--ediary-text);
 }
 
-p {
+.contenido-pagina p,
+footer p {
   margin-bottom: 8%;
 }
 
@@ -330,6 +332,16 @@ footer .logo {
   max-width: 800px;
   padding: 0 20px;
   text-align: center;
+}
+
+.footer-terminos a,
+.footer-terminos span {
+  color: var(--ediary-text);
+  text-decoration: none;
+}
+
+.footer-terminos a:hover {
+  color: var(--ediary-pink);
 }
 
 @media (max-width: 640px) {

@@ -21,7 +21,7 @@ export interface MoodboardCanvasMeta {
 
 export interface MoodboardElement {
   id: string;
-  type: 'text' | 'image' | 'video' | 'fabric';
+  type: 'text' | 'image' | 'fabric';
   x?: number;
   y?: number;
   width?: number;
@@ -47,6 +47,7 @@ export interface Moodboard {
   name: string;
   isPublic: boolean;
   hasThumbnail: boolean;
+  likeCount?: number;
   content: MoodboardContent;
 }
 
@@ -72,6 +73,7 @@ export interface PublicMoodboardFeedItem {
   ownerUsername: string;
   name: string;
   hasThumbnail: boolean;
+  likeCount?: number;
 }
 
 export interface PublicMoodboardsPage {

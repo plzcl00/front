@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { useAuth } from '../auth/AuthContext';
 import { getMoodboard } from '../api/moodboards';
 import type { Moodboard } from '../types/api';
 import { moodboardDisplayName } from '../lib/moodboardDisplay';
 import { FabricMoodboardEditor } from '../fabric/FabricMoodboardEditor';
 import { AppShell } from '../components/AppShell';
 import { MoodboardSharingPanel } from '../components/MoodboardSharingPanel';
+import { useOptionalSession } from '../auth/useSession';
 import './MoodboardEditorPage.css';
 
 export function MoodboardViewPage() {
@@ -15,9 +15,9 @@ export function MoodboardViewPage() {
     id: string;
   }>();
   const moodboardId = Number(id);
-  const { session } = useAuth();
-  const currentUser = session!.username;
-  const isOwner = ownerUsername === currentUser;
+  const { session, isAuthenticated } = useOptionalSession();
+  const currentUser = session?.username ?? '';
+  const isOwner = isAuthenticated && ownerUsername === currentUser;
 
   const [board, setBoard] = useState<Moodboard | null>(null);
   const [loading, setLoading] = useState(true);
@@ -32,14 +32,16 @@ export function MoodboardViewPage() {
     setLoading(true);
     setError(null);
     try {
-      const data = await getMoodboard(ownerUsername, moodboardId);
+      const data = await getMoodboard(ownerUsername, moodboardId, {
+        auth: isAuthenticated,
+      });
       setBoard(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo cargar el moodboard');
     } finally {
       setLoading(false);
     }
-  }, [ownerUsername, moodboardId]);
+  }, [ownerUsername, moodboardId, isAuthenticated]);
 
   useEffect(() => {
     void load();
@@ -56,9 +58,11 @@ export function MoodboardViewPage() {
   if (error || !board || !ownerUsername) {
     return (
       <AppShell title="Moodboard">
-        <p className="editor-page-error">{error ?? 'No encontrado'}</p>
-        <Link to="/app" className="editor-page-link">
-          Volver
+        <p className="editor-page-error" role="alert">
+          {error ?? 'No encontrado'}
+        </p>
+        <Link to={isAuthenticated ? '/app' : '/sign-in'} className="editor-page-link">
+          {isAuthenticated ? 'Volver' : 'Iniciar sesión'}
         </Link>
       </AppShell>
     );
@@ -73,7 +77,12 @@ export function MoodboardViewPage() {
               Editar
             </Link>
           )}
-          <Link to="/app" className="editor-page-link">
+          {!isAuthenticated && (
+            <Link to="/sign-in" className="btn-registro-form editor-page-save">
+              Iniciar sesión
+            </Link>
+          )}
+          <Link to={isAuthenticated ? '/app' : '/'} className="editor-page-link">
             Volver
           </Link>
         </div>
@@ -85,13 +94,16 @@ export function MoodboardViewPage() {
               moodboardId={board.id}
               initialContent={board.content}
               readOnly
+              publicAccess={!isAuthenticated}
             />
           </div>
-          <MoodboardSharingPanel
-            moodboard={board}
-            isOwner={isOwner}
-            onMoodboardUpdate={setBoard}
-          />
+          {isAuthenticated && (
+            <MoodboardSharingPanel
+              moodboard={board}
+              isOwner={isOwner}
+              onMoodboardUpdate={setBoard}
+            />
+          )}
         </div>
       </div>
     </AppShell>

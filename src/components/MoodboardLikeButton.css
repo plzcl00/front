@@ -1,0 +1,41 @@
+.moodboard-like-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: var(--radius-btn);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: var(--ediary-white);
+  color: var(--ediary-text);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+.moodboard-like-btn:hover:not(:disabled) {
+  border-color: var(--ediary-pink);
+  background: rgba(250, 128, 149, 0.1);
+}
+
+.moodboard-like-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.moodboard-like-btn img {
+  width: 1rem;
+  height: 1rem;
+  display: block;
+}
+
+.moodboard-like-btn--active {
+  border-color: var(--ediary-pink);
+  background: rgba(250, 128, 149, 0.2);
+  color: var(--ediary-pink);
+}
+
+.moodboard-like-btn--active img {
+  filter: brightness(0) saturate(100%) invert(62%) sepia(49%) saturate(749%)
+    hue-rotate(307deg) brightness(101%) contrast(95%);
+}

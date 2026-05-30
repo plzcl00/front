@@ -5,6 +5,11 @@
   align-items: start;
 }
 
+.diario-calendar,
+.diario-detail {
+  padding: 1.5rem;
+}
+
 @media (max-width: 900px) {
   .diario-page {
     grid-template-columns: 1fr;
@@ -175,9 +180,4 @@
 .diario-status {
   margin-top: 0.75rem;
   color: var(--color-text-muted, #666);
-}
-
-.diario-hint {
-  margin-top: 1rem;
-  font-size: 0.9rem;
 }

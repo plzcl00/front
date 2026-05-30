@@ -116,7 +116,9 @@ export function AppShell({ children, title }: AppShellProps) {
           </div>
           {title && <h1 className="app-shell__title">{title}</h1>}
         </header>
-        <main className="app-shell__main">{children}</main>
+        <main className="app-shell__main">
+          <div className="app-shell__content">{children}</div>
+        </main>
       </div>
     </div>
   );

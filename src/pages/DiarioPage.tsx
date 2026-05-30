@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useSession } from '../auth/useSession';
 import {
   deleteDiaryEntry,
@@ -347,10 +347,6 @@ export function DiarioPage() {
               </button>
             )}
           </div>
-
-          <p className="diario-hint">
-            <Link to="/app/metricas">Ver métricas</Link> de tu estado de ánimo.
-          </p>
         </section>
       </div>
     </AppShell>

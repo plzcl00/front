@@ -14,10 +14,12 @@ import { moodboardDisplayName } from '../lib/moodboardDisplay';
 import type { LikedMoodboardSummary, Moodboard } from '../types/api';
 import { AppShell } from '../components/AppShell';
 import { ConfirmDialog } from '../components/ConfirmDialog';
-import { QuizPrompt } from '../components/QuizPrompt';
 import { matchesMoodboardSearch, useSearch } from '../search/SearchContext';
 import { MoodboardCardThumbnail } from '../components/MoodboardCardThumbnail';
+import { FeedCardThumbnail } from '../components/FeedCardThumbnail';
+import { MoodboardLikeButton } from '../components/MoodboardLikeButton';
 import './Dashboard.css';
+import './ExplorePage.css';
 
 function todayIso(): string {
   const d = new Date();
@@ -103,9 +105,30 @@ export function Dashboard() {
     }
   };
 
+  const handleFavoriteLikeChange = (
+    board: LikedMoodboardSummary,
+    next: { liked: boolean; likeCount: number },
+  ) => {
+    if (!next.liked) {
+      setLikedBoards((prev) =>
+        prev.filter(
+          (item) => !(item.ownerUsername === board.ownerUsername && item.id === board.id),
+        ),
+      );
+      return;
+    }
+
+    setLikedBoards((prev) =>
+      prev.map((item) =>
+        item.ownerUsername === board.ownerUsername && item.id === board.id
+          ? { ...item, likeCount: next.likeCount }
+          : item,
+      ),
+    );
+  };
+
   return (
     <AppShell title="Mis moodboards">
-      <QuizPrompt username={username} onComplete={() => void load()} />
       <div className="dashboard">
         <div className="dashboard-main card card--elevated">
           <div className="dashboard-header">
@@ -202,15 +225,40 @@ export function Dashboard() {
           ) : filteredLikedBoards.length === 0 && hasSearch ? (
             <p className="dashboard-sidebar-empty">Ningún favorito coincide con tu búsqueda.</p>
           ) : (
-            <ul className="dashboard-favorites-list">
+            <div className="dashboard-favorites-grid">
               {filteredLikedBoards.map((liked) => (
-                <li key={`${liked.ownerUsername}-${liked.id}`}>
-                  <Link to={`/u/${liked.ownerUsername}/moodboards/${liked.id}`}>
-                    {moodboardDisplayName(liked)}
+                <article
+                  key={`${liked.ownerUsername}-${liked.id}`}
+                  className="dashboard-card dashboard-card--sidebar"
+                >
+                  <Link
+                    to={`/u/${liked.ownerUsername}/moodboards/${liked.id}`}
+                    className="dashboard-card-link"
+                  >
+                    <FeedCardThumbnail
+                      ownerUsername={liked.ownerUsername}
+                      moodboardId={liked.id}
+                      hasThumbnail={liked.hasThumbnail}
+                    />
+                    <div className="dashboard-card-body">
+                      <p className="explore-card-owner">@{liked.ownerUsername}</p>
+                      <h2>{moodboardDisplayName(liked)}</h2>
+                    </div>
                   </Link>
-                </li>
+                  {liked.ownerUsername !== username && (
+                    <div className="explore-card-footer explore-card-footer--sidebar">
+                      <MoodboardLikeButton
+                        ownerUsername={liked.ownerUsername}
+                        moodboardId={liked.id}
+                        liked
+                        likeCount={liked.likeCount ?? 0}
+                        onChange={(next) => handleFavoriteLikeChange(liked, next)}
+                      />
+                    </div>
+                  )}
+                </article>
               ))}
-            </ul>
+            </div>
           )}
         </aside>
       </div>

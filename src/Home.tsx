@@ -40,8 +40,8 @@ export function Home() {
         <section className="bienvenida">
           <h1>Conócete a ti mismo.</h1>
           <p>
-            Registra tu estado de ánimo en el diario, completa el quiz diario y
-            consulta tus métricas para comprenderte mejor.
+            Registra tu estado de ánimo cada día en el diario y consulta tus
+            métricas para comprenderte mejor.
           </p>
           <div className="section-visual">
             <img className="imagen-muestra1" src={imagenMuestra} alt="Métricas" />

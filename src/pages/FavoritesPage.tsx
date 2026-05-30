@@ -5,7 +5,10 @@ import { getLikedMoodboards } from '../api/moodboards';
 import { moodboardDisplayName } from '../lib/moodboardDisplay';
 import type { LikedMoodboardSummary } from '../types/api';
 import { AppShell } from '../components/AppShell';
+import { FeedCardThumbnail } from '../components/FeedCardThumbnail';
 import { matchesMoodboardSearch, useSearch } from '../search/SearchContext';
+import './Dashboard.css';
+import './ExplorePage.css';
 import './FavoritesPage.css';
 
 export function FavoritesPage() {
@@ -49,16 +52,34 @@ export function FavoritesPage() {
         {!loading && likedBoards.length > 0 && filteredLikedBoards.length === 0 && hasSearch && (
           <p>Ningún favorito coincide con tu búsqueda.</p>
         )}
-        <ul className="favorites-page-list">
-          {filteredLikedBoards.map((liked) => (
-            <li key={liked.id}>
-              <span>{moodboardDisplayName(liked)}</span>
-              <Link to={`/u/${liked.ownerUsername}/moodboards/${liked.id}`}>
-                Abrir
+
+        <div className="dashboard-grid">
+          {filteredLikedBoards.map((board, index) => (
+            <article
+              key={`${board.ownerUsername}-${board.id}`}
+              className={`dashboard-card ${index % 3 === 1 ? 'dashboard-card--tall' : ''}`}
+            >
+              <Link
+                to={`/u/${board.ownerUsername}/moodboards/${board.id}`}
+                className="dashboard-card-link"
+              >
+                <FeedCardThumbnail
+                  ownerUsername={board.ownerUsername}
+                  moodboardId={board.id}
+                  hasThumbnail={board.hasThumbnail}
+                />
+                <div className="dashboard-card-body">
+                  <p className="explore-card-owner">@{board.ownerUsername}</p>
+                  <h2>{moodboardDisplayName(board)}</h2>
+                  <p className="dashboard-card-likes">
+                    Me gusta: {board.likeCount ?? 0}
+                  </p>
+                </div>
               </Link>
-            </li>
+            </article>
           ))}
-        </ul>
+        </div>
+
         <Link to="/app" className="favorites-page-back">
           Volver al panel
         </Link>

@@ -29,13 +29,15 @@ body {
   min-height: 100vh;
 }
 
-h1,
-p {
+.contenido-pagina h1,
+.contenido-pagina p,
+footer p {
   text-align: center;
   color: var(--ediary-text);
 }
 
-p {
+.contenido-pagina p,
+footer p {
   margin-bottom: 8%;
 }
 
@@ -272,43 +274,6 @@ button.btn-idioma {
   cursor: not-allowed;
 }
 
-.btn-google {
-  width: 100%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 10px;
-  margin-bottom: 1.5rem;
-  border: 1px solid #ddd;
-  border-radius: var(--radius-btn);
-  background: var(--ediary-white);
-  color: var(--ediary-text);
-  font-family: inherit;
-  font-size: 15px;
-  cursor: pointer;
-}
-
-.btn-google img {
-  width: 20px;
-  height: 20px;
-}
-
-.form-divider {
-  text-align: center;
-  color: var(--ediary-text-muted);
-  font-size: 14px;
-  margin: 0 0 1.25rem;
-}
-
-.contrasenia-olvidada {
-  color: var(--ediary-text);
-  font-size: 14px;
-  display: block;
-  margin-top: 0.5rem;
-  text-align: left;
-}
-
 /* Footer */
 footer {
   display: flex;
@@ -330,6 +295,16 @@ footer .logo {
   max-width: 800px;
   padding: 0 20px;
   text-align: center;
+}
+
+.footer-terminos a,
+.footer-terminos span {
+  color: var(--ediary-text);
+  text-decoration: none;
+}
+
+.footer-terminos a:hover {
+  color: var(--ediary-pink);
 }
 
 @media (max-width: 640px) {

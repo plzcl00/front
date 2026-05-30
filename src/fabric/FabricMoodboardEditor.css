@@ -53,13 +53,94 @@
 }
 
 .fabric-canvas-wrap {
+  width: 100%;
+  max-width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
   border: 1px solid rgba(250, 128, 149, 0.35);
   border-radius: var(--radius-card);
-  display: inline-block;
-  max-width: 100%;
   overflow: auto;
   background: var(--ediary-white);
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.04);
+  line-height: 0;
+}
+
+.fabric-canvas-wrap--pan {
+  cursor: grab;
+}
+
+.fabric-canvas-wrap--pan:active {
+  cursor: grabbing;
+}
+
+.fabric-zoom-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.fabric-zoom-btn {
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-btn);
+  background-color: var(--ediary-yellow);
+  color: var(--ediary-text);
+  font-family: inherit;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.fabric-zoom-btn:hover:not(:disabled) {
+  filter: brightness(1.05);
+}
+
+.fabric-zoom-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.fabric-zoom-label {
+  min-width: 3rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ediary-text);
+  text-align: center;
+}
+
+.fabric-zoom-reset {
+  padding: 0.35rem 0.75rem;
+  border: none;
+  border-radius: var(--radius-btn);
+  background-color: var(--ediary-pink);
+  color: var(--ediary-white);
+  font-family: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.fabric-zoom-reset:hover:not(:disabled) {
+  filter: brightness(1.05);
+}
+
+.fabric-zoom-reset:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.fabric-zoom-hint {
+  font-size: 0.8rem;
+  color: var(--ediary-text);
+  opacity: 0.75;
+}
+
+.fabric-canvas-wrap .canvas-container {
+  display: block;
+  line-height: 0;
 }
 
 .fabric-canvas-wrap canvas {

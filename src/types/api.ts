@@ -21,7 +21,7 @@ export interface MoodboardCanvasMeta {
 
 export interface MoodboardElement {
   id: string;
-  type: 'text' | 'image' | 'video' | 'fabric';
+  type: 'text' | 'image' | 'fabric';
   x?: number;
   y?: number;
   width?: number;
@@ -47,6 +47,7 @@ export interface Moodboard {
   name: string;
   isPublic: boolean;
   hasThumbnail: boolean;
+  likeCount?: number;
   content: MoodboardContent;
 }
 
@@ -54,6 +55,8 @@ export interface LikedMoodboardSummary {
   id: number;
   ownerUsername: string;
   name: string;
+  hasThumbnail: boolean;
+  likeCount?: number;
 }
 
 export interface MoodboardCreateRequest {
@@ -72,6 +75,7 @@ export interface PublicMoodboardFeedItem {
   ownerUsername: string;
   name: string;
   hasThumbnail: boolean;
+  likeCount?: number;
 }
 
 export interface PublicMoodboardsPage {
@@ -81,4 +85,37 @@ export interface PublicMoodboardsPage {
   totalItems: number;
   totalPages: number;
   hasNext: boolean;
+}
+
+export interface DiaryEntry {
+  id: number;
+  ownerUsername: string;
+  entryDate: string;
+  moodScore: number;
+  textNote?: string | null;
+  linkedMoodboardId?: number | null;
+  reminderAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DiaryEntryRequest {
+  entryDate: string;
+  moodScore: number;
+  textNote?: string | null;
+  linkedMoodboardId?: number | null;
+  reminderAt?: string | null;
+}
+
+export interface MetricsResponse {
+  period: string;
+  averageMood: number;
+  entryStreak: number;
+  totalEntries: number;
+  trend: { date: string; moodScore: number }[];
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
 }

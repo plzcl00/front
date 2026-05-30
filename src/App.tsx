@@ -2,7 +2,6 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './auth/AuthContext';
 import { SearchProvider } from './search/SearchContext';
 import { ProtectedRoute } from './auth/ProtectedRoute';
-import { ResetPassword } from './ResetPassword';
 import { Home } from './Home';
 import { SignIn } from './SignIn';
 import { SignUp } from './SignUp';
@@ -12,6 +11,10 @@ import { MoodboardViewPage } from './pages/MoodboardViewPage';
 import { FavoritesPage } from './pages/FavoritesPage';
 import { ExplorePage } from './pages/ExplorePage';
 import { SettingsPage } from './pages/SettingsPage';
+import { NewMoodboardPage } from './pages/NewMoodboardPage';
+import { LegalStubPage } from './pages/LegalStubPage';
+import { DiarioPage } from './pages/DiarioPage';
+import { MetricasPage } from './pages/MetricasPage';
 import './App.css';
 
 export function App() {
@@ -23,7 +26,8 @@ export function App() {
           <Route path="/" element={<Home />} />
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/sign-up" element={<SignUp />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/terminos" element={<LegalStubPage title="Términos de servicio" />} />
+          <Route path="/privacidad" element={<LegalStubPage title="Política de privacidad" />} />
           <Route
             path="/app"
             element={
@@ -49,6 +53,22 @@ export function App() {
             }
           />
           <Route
+            path="/app/diario"
+            element={
+              <ProtectedRoute>
+                <DiarioPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/app/metricas"
+            element={
+              <ProtectedRoute>
+                <MetricasPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/app/ajustes"
             element={
               <ProtectedRoute>
@@ -58,7 +78,11 @@ export function App() {
           />
           <Route
             path="/app/moodboards/new"
-            element={<Navigate to="/app" replace />}
+            element={
+              <ProtectedRoute>
+                <NewMoodboardPage />
+              </ProtectedRoute>
+            }
           />
           <Route
             path="/app/moodboards/:id"
@@ -68,14 +92,7 @@ export function App() {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/u/:username/moodboards/:id"
-            element={
-              <ProtectedRoute>
-                <MoodboardViewPage />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/u/:username/moodboards/:id" element={<MoodboardViewPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>

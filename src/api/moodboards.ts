@@ -19,6 +19,7 @@ function normalizeMoodboard(raw: Moodboard & { public?: boolean }): Moodboard {
     name: raw.name?.trim() || 'Sin título',
     isPublic: raw.isPublic ?? raw.public ?? false,
     hasThumbnail: raw.hasThumbnail ?? false,
+    likeCount: raw.likeCount ?? 0,
   };
 }
 
@@ -36,9 +37,11 @@ export async function listMoodboards(username: string): Promise<Moodboard[]> {
 export async function getMoodboard(
   username: string,
   moodboardId: number,
+  options: { auth?: boolean } = {},
 ): Promise<Moodboard> {
   const raw = await apiRequest<Moodboard & { public?: boolean }>(
     `${userPath(username)}/moodboards/${moodboardId}`,
+    { auth: options.auth ?? true },
   );
   return normalizeMoodboard(raw);
 }
@@ -126,6 +129,15 @@ export function revokePermission(
   );
 }
 
+export function getPermissions(
+  username: string,
+  moodboardId: number,
+): Promise<string[]> {
+  return apiRequest<string[]>(
+    `${userPath(username)}/moodboards/${moodboardId}/permissions`,
+  );
+}
+
 export function likeMoodboard(
   username: string,
   moodboardId: number,
@@ -158,9 +170,11 @@ export function getLikes(
 export function getLikeCount(
   username: string,
   moodboardId: number,
+  options: { auth?: boolean } = {},
 ): Promise<number> {
   return apiRequest<number>(
     `${userPath(username)}/moodboards/${moodboardId}/likes/count`,
+    { auth: options.auth ?? true },
   );
 }
 
@@ -208,8 +222,9 @@ export function fetchMediaBlob(
   username: string,
   moodboardId: number,
   assetId: number,
+  options: { auth?: boolean } = {},
 ): Promise<Blob> {
-  return apiRequestBytes(mediaUrl(username, moodboardId, assetId));
+  return apiRequestBytes(mediaUrl(username, moodboardId, assetId), options);
 }
 
 export function thumbnailPath(username: string, moodboardId: number): string {
@@ -219,8 +234,9 @@ export function thumbnailPath(username: string, moodboardId: number): string {
 export function fetchThumbnailBlob(
   username: string,
   moodboardId: number,
+  options: { auth?: boolean } = {},
 ): Promise<Blob> {
-  return apiRequestBytes(thumbnailPath(username, moodboardId));
+  return apiRequestBytes(thumbnailPath(username, moodboardId), options);
 }
 
 export function uploadThumbnail(

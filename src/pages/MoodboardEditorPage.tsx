@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { useAuth } from '../auth/AuthContext';
+import { useSession } from '../auth/useSession';
 import { getMoodboard, renameMoodboard, updateMoodboard, uploadThumbnail } from '../api/moodboards';
 import type { Moodboard, MoodboardContent } from '../types/api';
 import { FabricMoodboardEditor } from '../fabric/FabricMoodboardEditor';
@@ -12,14 +12,14 @@ import './MoodboardEditorPage.css';
 export function MoodboardEditorPage() {
   const { id } = useParams<{ id: string }>();
   const moodboardId = Number(id);
-  const { session } = useAuth();
-  const username = session!.username;
+  const { username } = useSession();
   const navigate = useNavigate();
 
   const [board, setBoard] = useState<Moodboard | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [thumbnailWarning, setThumbnailWarning] = useState<string | null>(null);
   const [draftName, setDraftName] = useState('');
   const saveCanvasRef = useRef<(() => Promise<MoodboardContent>) | null>(null);
   const exportThumbnailRef = useRef<(() => Promise<Blob>) | null>(null);
@@ -64,6 +64,7 @@ export function MoodboardEditorPage() {
     }
     setSaving(true);
     setError(null);
+    setThumbnailWarning(null);
     try {
       if (trimmedName !== board.name.trim()) {
         await renameMoodboard(username, board.id, trimmedName);
@@ -74,7 +75,13 @@ export function MoodboardEditorPage() {
           const thumbnail = await exportThumbnailRef.current();
           await uploadThumbnail(username, board.id, thumbnail);
         } catch (thumbErr) {
-          console.warn('No se pudo subir la miniatura', thumbErr);
+          setThumbnailWarning(
+            thumbErr instanceof Error
+              ? thumbErr.message
+              : 'No se pudo subir la miniatura',
+          );
+          setSaving(false);
+          return;
         }
       }
       navigate('/app');
@@ -134,7 +141,16 @@ export function MoodboardEditorPage() {
             Volver
           </Link>
         </div>
-        {error && <p className="editor-page-error">{error}</p>}
+        {error && (
+          <p className="editor-page-error" role="alert">
+            {error}
+          </p>
+        )}
+        {thumbnailWarning && (
+          <p className="editor-page-error" role="alert">
+            {thumbnailWarning}
+          </p>
+        )}
 
         <div className="editor-page-layout">
           <div className="editor-page-canvas card card--elevated">

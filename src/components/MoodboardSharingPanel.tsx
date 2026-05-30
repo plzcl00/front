@@ -3,13 +3,14 @@ import type { Moodboard } from '../types/api';
 import {
   getLikeCount,
   getLikes,
+  getPermissions,
   grantPermission,
-  likeMoodboard,
   revokePermission,
   setVisibility,
-  unlikeMoodboard,
 } from '../api/moodboards';
-import { useAuth } from '../auth/AuthContext';
+import { useOptionalSession } from '../auth/useSession';
+import { MoodboardLikeButton } from './MoodboardLikeButton';
+import { UsernameAutocomplete } from './UsernameAutocomplete';
 import './MoodboardSharingPanel.css';
 
 interface MoodboardSharingPanelProps {
@@ -23,11 +24,12 @@ export function MoodboardSharingPanel({
   isOwner,
   onMoodboardUpdate,
 }: MoodboardSharingPanelProps) {
-  const { session } = useAuth();
+  const { session } = useOptionalSession();
   const [grantTo, setGrantTo] = useState('');
+  const [grantToValid, setGrantToValid] = useState(false);
   const [grantedUsers, setGrantedUsers] = useState<string[]>([]);
   const [likers, setLikers] = useState<string[]>([]);
-  const [likeCount, setLikeCount] = useState(0);
+  const [likeCount, setLikeCount] = useState(moodboard.likeCount ?? 0);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -46,10 +48,19 @@ export function MoodboardSharingPanel({
 
   useEffect(() => {
     void refreshLikes().catch(() => {
-      setLikeCount(0);
+      setLikeCount(moodboard.likeCount ?? 0);
       setLikers([]);
     });
-  }, [refreshLikes]);
+  }, [refreshLikes, moodboard.likeCount]);
+
+  useEffect(() => {
+    if (!isOwner) {
+      return;
+    }
+    void getPermissions(owner, id)
+      .then(setGrantedUsers)
+      .catch(() => setGrantedUsers([]));
+  }, [isOwner, owner, id]);
 
   const userHasLiked = likers.includes(currentUser);
 
@@ -68,15 +79,17 @@ export function MoodboardSharingPanel({
 
   const handleGrant = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!grantTo.trim()) return;
+    const username = grantTo.trim();
+    if (!username || !grantToValid) return;
     setBusy(true);
     setError(null);
     try {
-      await grantPermission(owner, id, grantTo.trim());
+      await grantPermission(owner, id, username);
       setGrantedUsers((prev) =>
-        prev.includes(grantTo.trim()) ? prev : [...prev, grantTo.trim()],
+        prev.includes(username) ? prev : [...prev, username],
       );
       setGrantTo('');
+      setGrantToValid(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error');
     } finally {
@@ -97,27 +110,14 @@ export function MoodboardSharingPanel({
     }
   };
 
-  const handleLikeToggle = async () => {
-    setBusy(true);
-    setError(null);
-    try {
-      if (userHasLiked) {
-        await unlikeMoodboard(owner, id);
-      } else {
-        await likeMoodboard(owner, id);
-      }
-      await refreshLikes();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error');
-    } finally {
-      setBusy(false);
-    }
-  };
-
   return (
     <aside className="sharing-panel">
       <h3>Compartir y social</h3>
-      {error && <p className="sharing-error">{error}</p>}
+      {error && (
+        <p className="sharing-error" role="alert">
+          {error}
+        </p>
+      )}
 
       <p>
         Visibilidad:{' '}
@@ -132,14 +132,16 @@ export function MoodboardSharingPanel({
 
           <form onSubmit={(e) => void handleGrant(e)} className="sharing-grant-form">
             <label htmlFor="grantTo">Dar acceso a usuario</label>
-            <input
+            <UsernameAutocomplete
               id="grantTo"
               value={grantTo}
-              onChange={(e) => setGrantTo(e.target.value)}
-              placeholder="nombre_usuario"
+              onChange={setGrantTo}
+              onValidUserChange={setGrantToValid}
+              exclude={[owner, currentUser, ...grantedUsers]}
               disabled={busy}
+              placeholder="nombre_usuario"
             />
-            <button type="submit" disabled={busy}>
+            <button type="submit" disabled={busy || !grantToValid}>
               Conceder
             </button>
           </form>
@@ -159,12 +161,19 @@ export function MoodboardSharingPanel({
         </>
       )}
 
-      <p>Me gusta: {likeCount}</p>
-      {!isOwner && (
-        <button type="button" disabled={busy} onClick={() => void handleLikeToggle()}>
-          {userHasLiked ? 'Quitar me gusta' : 'Me gusta'}
-        </button>
-      )}
+      <div className="sharing-like-row">
+        <MoodboardLikeButton
+          ownerUsername={owner}
+          moodboardId={id}
+          liked={userHasLiked}
+          likeCount={likeCount}
+          readOnly={isOwner || !currentUser}
+          onChange={(next) => {
+            setLikeCount(next.likeCount);
+            void refreshLikes();
+          }}
+        />
+      </div>
       {likers.length > 0 && (
         <p className="sharing-likers">Les gusta: {likers.join(', ')}</p>
       )}

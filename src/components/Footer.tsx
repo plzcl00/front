@@ -8,10 +8,10 @@ export function Footer() {
         <img className="logo" src={logo} alt="E-Diary" />
       </Link>
       <div className="footer-terminos">
-        <p>Términos de uso</p>
-        <p>Política de Privacidad</p>
-        <p>Soporte</p>
-        <p>Contacto</p>
+        <Link to="/terminos">Términos de uso</Link>
+        <Link to="/privacidad">Política de privacidad</Link>
+        <span>Soporte</span>
+        <span>Contacto</span>
       </div>
     </footer>
   );

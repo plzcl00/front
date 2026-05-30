@@ -101,12 +101,6 @@
   background-color: rgba(250, 128, 149, 0.35);
 }
 
-.dashboard-card-likes {
-  font-size: 0.85rem;
-  margin: 0.5rem 0;
-  text-align: left;
-}
-
 .dashboard-card-link {
   display: flex;
   flex-direction: column;
@@ -147,8 +141,8 @@
 }
 
 .dashboard-sidebar {
-  min-width: 220px;
-  max-width: 260px;
+  min-width: 240px;
+  max-width: 280px;
   padding: 1.25rem;
   flex-shrink: 0;
 }
@@ -159,23 +153,52 @@
   text-align: left;
 }
 
+.dashboard-sidebar-title--spaced {
+  margin-top: 1.5rem;
+}
+
+.dashboard-diary-status {
+  font-size: 0.9rem;
+  text-align: left;
+  margin: 0 0 0.75rem;
+}
+
+.dashboard-diary-status--done {
+  color: #2e7d32;
+}
+
+.dashboard-diary-link {
+  display: inline-block;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
 .dashboard-sidebar-empty {
   font-size: 0.9rem;
   text-align: left;
   margin: 0;
 }
 
-.dashboard-favorites-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.dashboard-favorites-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
-.dashboard-favorites-list li {
-  padding: 0.5rem 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-  font-size: 0.9rem;
-  text-align: left;
+.dashboard-card--sidebar .dashboard-card-preview {
+  min-height: 88px;
+}
+
+.dashboard-card--sidebar .dashboard-card-body {
+  padding: 0.75rem;
+}
+
+.dashboard-card--sidebar .dashboard-card-body h2 {
+  font-size: 0.95rem;
+}
+
+.dashboard-card--sidebar .explore-card-owner {
+  font-size: 0.8rem;
 }
 
 @media (max-width: 900px) {

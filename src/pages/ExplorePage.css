@@ -50,3 +50,12 @@
   color: var(--ediary-text);
   opacity: 0.75;
 }
+
+.explore-card-footer {
+  display: flex;
+  padding: 0 1rem 1rem;
+}
+
+.explore-card-footer--sidebar {
+  padding: 0 0.75rem 0.75rem;
+}

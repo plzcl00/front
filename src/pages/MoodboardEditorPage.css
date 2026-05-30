@@ -1,0 +1,33 @@
+.editor-page {
+  padding: 1.5rem 2rem;
+}
+
+.editor-page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.editor-page-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.editor-page-layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.editor-page-error {
+  color: #b00020;
+}
+
+.editor-page-status {
+  padding: 2rem;
+}

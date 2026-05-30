@@ -1,62 +1,106 @@
+import { useState, type FormEvent } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import './SignUp.css';
-import logo from './assets/Ediary.png';
+import { MarketingHeader } from './components/MarketingHeader';
+import { useAuth } from './auth/AuthContext';
+import { ApiError } from './api/client';
 
 export function SignUp() {
-    return (
-        <>
-            {/*Header*/}
-            <header>
-                <img className='logo' src={logo} alt='logo' />
-                <div className='botones-encabezado'>
-                    <button type="submit" className="btn-idioma">Idioma</button>
-                    <button type="submit" className="btn-registro">Registrarse</button>
-                    <button type="submit" className="btn-inicio-sesion">Iniciar sesión</button>
-                </div>
-            </header>
+  const { register } = useAuth();
+  const navigate = useNavigate();
 
-            {/**Formulario */}
-            <div className='contenido-pagina'>
-                <div className="form-container">
-                    <h2>Bienvenido a EDiary</h2>
-                    <p>Descúbrete a ti mismo.</p>
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [terms, setTerms] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-                    <form action="#" method="POST">
-                        <div className="form-group">
-                            <label htmlFor="nombre">Correo Electrónico</label>
-                            <input type="text" id="nombre" name="nombre" required />
-                        </div>
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!terms) {
+      setError('Debes aceptar los términos');
+      return;
+    }
+    setError(null);
+    setLoading(true);
+    try {
+      await register(username, password);
+      navigate('/app', { replace: true });
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setError(err.message);
+      } else {
+        setError('No se pudo registrar');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
-                        <div className="form-group">
-                            <label htmlFor="email">Contraseña</label>
-                            <input type="email" id="email" name="email" required />
-                            <p>Debe tener al menos 8 carácteres, números y símbolos especiales.</p>
-                        </div>
+  return (
+    <>
+      <MarketingHeader />
+      <div className="contenido-pagina">
+        <div className="form-container">
+          <h2>Bienvenido a EDiary</h2>
+          <p>Descúbrete a ti mismo.</p>
 
-                        <div className="form-group">
-                            <label htmlFor="fechaNacimiento">Fecha de Nacimiento</label>
-                            <input
-                                type="date"
-                                id="fechaNacimiento"
-                                name="fechaNacimiento"
-                                required
-                            />
-                        </div>
-
-                        <div className="form-group-checkbox">
-                            <input type="checkbox" id="terminos" name="terminos" required />
-                            <label htmlFor="terminos">
-                                Acepto los <a href="/terminos" target="_blank">Términos de servicio</a> y la <a href="/privacidad" target="_blank">Política de privacidad</a>
-                            </label>
-                        </div>
-
-                        <button type="submit" className="btn-registro-form">Registrarse</button>
-
-                        <p>¿Ya tienes una cuenta?
-                            <a href=""> Iniciar sesión.</a>
-                        </p>
-                    </form>
-                </div>
+          <form onSubmit={(e) => void handleSubmit(e)}>
+            <div className="form-group">
+              <label htmlFor="username">Usuario</label>
+              <input
+                type="text"
+                id="username"
+                name="username"
+                autoComplete="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
+              <p className="form-hint">Letras, números, guiones y guiones bajos.</p>
             </div>
-        </>
-    )
+
+            <div className="form-group">
+              <label htmlFor="password">Contraseña</label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                autoComplete="new-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
+              />
+              <p>Al menos 6 caracteres.</p>
+            </div>
+
+            <div className="form-group-checkbox">
+              <input
+                type="checkbox"
+                id="terminos"
+                checked={terms}
+                onChange={(e) => setTerms(e.target.checked)}
+                required
+              />
+              <label htmlFor="terminos">
+                Acepto los <a href="/terminos">Términos de servicio</a> y la{' '}
+                <a href="/privacidad">Política de privacidad</a>
+              </label>
+            </div>
+
+            {error && <p className="form-error">{error}</p>}
+
+            <button type="submit" className="btn-registro-form" disabled={loading}>
+              {loading ? 'Registrando…' : 'Registrarse'}
+            </button>
+
+            <p>
+              ¿Ya tienes una cuenta? <Link to="/sign-in">Iniciar sesión.</Link>
+            </p>
+          </form>
+        </div>
+      </div>
+    </>
+  );
 }

@@ -1,45 +1,89 @@
+import { useState, type FormEvent } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import './SignIn.css';
-import logo from './assets/Ediary.png';
+import { MarketingHeader } from './components/MarketingHeader';
+import { useAuth } from './auth/AuthContext';
+import { ApiError } from './api/client';
 
 export function SignIn() {
-    return (
-        <>
-            {/*Header*/}
-            <header>
-                <img className='logo' src={logo} alt='logo' />
-                <div className='botones-encabezado'>
-                    <button type="submit" className="btn-idioma">Idioma</button>
-                    <button type="submit" className="btn-registro">Registrarse</button>
-                    <button type="submit" className="btn-inicio-sesion">Iniciar sesión</button>
-                </div>
-            </header>
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = (location.state as { from?: string } | null)?.from ?? '/app';
 
-            {/**Formulario */}
-            <div className='contenido-pagina'>
-                <div className="form-container">
-                    <h2>Accede a EDiary</h2>
-                    <p></p>
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-                    <form action="#" method="POST">
-                        <div className="form-group">
-                            <label htmlFor="nombre">Correo Electrónico</label>
-                            <input type="text" id="nombre" name="nombre" required />
-                        </div>
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+    try {
+      await login(username, password);
+      navigate(from, { replace: true });
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setError(
+          err.status === 401
+            ? 'Usuario o contraseña incorrectos'
+            : err.message,
+        );
+      } else {
+        setError('No se pudo iniciar sesión');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
-                        <div className="form-group">
-                            <label htmlFor="email">Contraseña</label>
-                            <input type="email" id="email" name="email" required />
-                            <a className="contrasenia-olvidada" href=''>¿Has olvidado tu contraseña?</a>
-                        </div>
+  return (
+    <>
+      <MarketingHeader />
+      <div className="contenido-pagina">
+        <div className="form-container">
+          <h2>Accede a EDiary</h2>
 
-                        <button type="submit" className="btn-registro-form">Iniciar Sesión</button>
-
-                        <p>¿No tienes una cuenta?
-                            <a href=""> Regístrate.</a>
-                        </p>
-                    </form>
-                </div>
+          <form onSubmit={(e) => void handleSubmit(e)}>
+            <div className="form-group">
+              <label htmlFor="username">Usuario</label>
+              <input
+                type="text"
+                id="username"
+                name="username"
+                autoComplete="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
             </div>
-        </>
-    )
+
+            <div className="form-group">
+              <label htmlFor="password">Contraseña</label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+
+            {error && <p className="form-error">{error}</p>}
+
+            <button type="submit" className="btn-registro-form" disabled={loading}>
+              {loading ? 'Entrando…' : 'Iniciar sesión'}
+            </button>
+
+            <p>
+              ¿No tienes una cuenta? <Link to="/sign-up">Regístrate.</Link>
+            </p>
+          </form>
+        </div>
+      </div>
+    </>
+  );
 }

@@ -1,3 +1,8 @@
+.form-error {
+  color: #b00020;
+  font-size: 0.9rem;
+}
+
 @font-face {
   font-family: 'Montserrat'; /* El nombre que tú quieras darle */
   src: url('./assets/fonts/Montserrat-Normal.ttf') format('truetype'); /* La ruta exacta al archivo */

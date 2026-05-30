@@ -3,6 +3,16 @@
   src: url('./assets/fonts/Montserrat-Normal.ttf') format('truetype'); /* La ruta exacta al archivo */
 }
 
+.form-error {
+  color: #b00020;
+  font-size: 0.9rem;
+}
+
+.form-hint {
+  font-size: 0.85rem;
+  color: #666;
+}
+
 html, body{
   margin: 0;
   padding: 0;

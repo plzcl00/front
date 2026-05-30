@@ -1,0 +1,46 @@
+.sharing-panel {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  min-width: 220px;
+  background: #fafafa;
+}
+
+.sharing-panel h3 {
+  margin-top: 0;
+}
+
+.sharing-error {
+  color: #b00020;
+  font-size: 0.9rem;
+}
+
+.sharing-grant-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0.75rem 0;
+}
+
+.sharing-grant-form input {
+  padding: 0.35rem;
+}
+
+.sharing-granted-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sharing-granted-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.sharing-likers {
+  font-size: 0.85rem;
+  color: #555;
+}

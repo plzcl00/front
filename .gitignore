@@ -160,3 +160,4 @@ sketch
 # Figma source (large binary; use exported assets in src/assets)
 *.fig
 emotion-diary-web.fig
+inspection/

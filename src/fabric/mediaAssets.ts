@@ -28,9 +28,10 @@ export async function hydrateFabricMedia(
   fabricJson: Record<string, unknown>,
   ownerUsername: string,
   moodboardId: number,
+  localBlobUrls?: string[],
 ): Promise<Record<string, unknown>> {
   const clone = structuredClone(fabricJson);
-  await hydrateObjects(clone.objects as FabricObjectLike[] | undefined, ownerUsername, moodboardId);
+  await hydrateObjects(clone.objects as FabricObjectLike[] | undefined, ownerUsername, moodboardId, localBlobUrls);
   return clone;
 }
 
@@ -38,19 +39,24 @@ async function hydrateObjects(
   objects: FabricObjectLike[] | undefined,
   ownerUsername: string,
   moodboardId: number,
+  localBlobUrls?: string[],
 ): Promise<void> {
   if (!objects) {
     return;
   }
   for (const obj of objects) {
     if (obj.type === 'group' && obj.objects) {
-      await hydrateObjects(obj.objects, ownerUsername, moodboardId);
+      await hydrateObjects(obj.objects, ownerUsername, moodboardId, localBlobUrls);
     }
     const assetId = readAssetId(obj);
     if (assetId != null) {
       const blob = await fetchMediaBlob(ownerUsername, moodboardId, assetId);
       const url = URL.createObjectURL(blob);
-      trackBlobUrl(url);
+      if (localBlobUrls) {
+        localBlobUrls.push(url);
+      } else {
+        trackBlobUrl(url);
+      }
       if (obj.set) {
         obj.set('src', url);
       } else {

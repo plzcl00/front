@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
-import { getMoodboard, updateMoodboard } from '../api/moodboards';
+import { getMoodboard, renameMoodboard, updateMoodboard } from '../api/moodboards';
 import type { Moodboard, MoodboardContent } from '../types/api';
 import { FabricMoodboardEditor } from '../fabric/FabricMoodboardEditor';
 import { AppShell } from '../components/AppShell';
 import { MoodboardSharingPanel } from '../components/MoodboardSharingPanel';
+import { moodboardDisplayName } from '../lib/moodboardDisplay';
 import './MoodboardEditorPage.css';
 
 export function MoodboardEditorPage() {
@@ -19,6 +20,7 @@ export function MoodboardEditorPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [draftName, setDraftName] = useState('');
   const saveCanvasRef = useRef<(() => Promise<MoodboardContent>) | null>(null);
 
   const load = useCallback(async () => {
@@ -32,6 +34,7 @@ export function MoodboardEditorPage() {
     try {
       const data = await getMoodboard(username, moodboardId);
       setBoard(data);
+      setDraftName(data.name);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo cargar el moodboard');
     } finally {
@@ -52,10 +55,18 @@ export function MoodboardEditorPage() {
   );
 
   const handleSave = async () => {
-    if (!saveCanvasRef.current) return;
+    if (!saveCanvasRef.current || !board) return;
+    const trimmedName = draftName.trim();
+    if (!trimmedName) {
+      setError('El nombre del moodboard no puede estar vacío');
+      return;
+    }
     setSaving(true);
     setError(null);
     try {
+      if (trimmedName !== board.name.trim()) {
+        await renameMoodboard(username, board.id, trimmedName);
+      }
       await saveCanvasRef.current();
       navigate('/app');
     } catch (err) {
@@ -88,9 +99,20 @@ export function MoodboardEditorPage() {
   }
 
   return (
-    <AppShell title={`Moodboard #${board.id}`}>
+    <AppShell title={moodboardDisplayName(board)}>
       <div className="editor-page">
         <div className="editor-page-toolbar card">
+          <label className="editor-page-name-label">
+            Nombre
+            <input
+              type="text"
+              className="editor-page-name-input"
+              value={draftName}
+              maxLength={100}
+              disabled={saving}
+              onChange={(e) => setDraftName(e.target.value)}
+            />
+          </label>
           <button
             type="button"
             className="btn-registro-form editor-page-save"

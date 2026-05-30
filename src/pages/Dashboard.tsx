@@ -4,14 +4,16 @@ import { useAuth } from '../auth/AuthContext';
 import {
   createMoodboard,
   deleteMoodboard,
-  getLikedMoodboardIds,
+  getLikedMoodboards,
   getLikeCount,
   listMoodboards,
   setVisibility,
 } from '../api/moodboards';
 import { createEmptyMoodboardContent } from '../lib/moodboardContent';
-import type { Moodboard } from '../types/api';
+import { moodboardDisplayName } from '../lib/moodboardDisplay';
+import type { LikedMoodboardSummary, Moodboard } from '../types/api';
 import { AppShell } from '../components/AppShell';
+import { MoodboardCardPreview } from '../components/MoodboardCardPreview';
 import './Dashboard.css';
 
 export function Dashboard() {
@@ -20,7 +22,7 @@ export function Dashboard() {
   const navigate = useNavigate();
 
   const [boards, setBoards] = useState<Moodboard[]>([]);
-  const [likedIds, setLikedIds] = useState<number[]>([]);
+  const [likedBoards, setLikedBoards] = useState<LikedMoodboardSummary[]>([]);
   const [likeCounts, setLikeCounts] = useState<Record<number, number>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -32,10 +34,10 @@ export function Dashboard() {
     try {
       const [list, liked] = await Promise.all([
         listMoodboards(username),
-        getLikedMoodboardIds(username),
+        getLikedMoodboards(username),
       ]);
       setBoards(list);
-      setLikedIds(liked);
+      setLikedBoards(liked);
 
       const counts: Record<number, number> = {};
       await Promise.all(
@@ -124,9 +126,13 @@ export function Dashboard() {
                   to={`/app/moodboards/${board.id}`}
                   className="dashboard-card-link"
                 >
-                  <div className="dashboard-card-preview" aria-hidden />
+                  <MoodboardCardPreview
+                    content={board.content}
+                    ownerUsername={board.ownerUsername}
+                    moodboardId={board.id}
+                  />
                   <div className="dashboard-card-body">
-                    <h2>Moodboard #{board.id}</h2>
+                    <h2>{moodboardDisplayName(board)}</h2>
                     <span className={`pill-badge ${board.isPublic ? 'pill-badge--public' : ''}`}>
                       {board.isPublic ? 'Público' : 'Privado'}
                     </span>
@@ -161,12 +167,16 @@ export function Dashboard() {
 
         <aside className="dashboard-sidebar card card--elevated">
           <h2 className="dashboard-sidebar-title">Mis favoritos</h2>
-          {likedIds.length === 0 ? (
+          {likedBoards.length === 0 ? (
             <p className="dashboard-sidebar-empty">No has marcado moodboards con me gusta.</p>
           ) : (
             <ul className="dashboard-favorites-list">
-              {likedIds.map((id) => (
-                <li key={id}>Moodboard #{id}</li>
+              {likedBoards.map((liked) => (
+                <li key={liked.id}>
+                  <Link to={`/u/${liked.ownerUsername}/moodboards/${liked.id}`}>
+                    {moodboardDisplayName(liked)}
+                  </Link>
+                </li>
               ))}
             </ul>
           )}

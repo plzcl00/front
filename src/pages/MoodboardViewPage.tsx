@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { getMoodboard } from '../api/moodboards';
 import type { Moodboard } from '../types/api';
+import { moodboardDisplayName } from '../lib/moodboardDisplay';
 import { FabricMoodboardEditor } from '../fabric/FabricMoodboardEditor';
 import { AppShell } from '../components/AppShell';
 import { MoodboardSharingPanel } from '../components/MoodboardSharingPanel';
@@ -64,7 +65,7 @@ export function MoodboardViewPage() {
   }
 
   return (
-    <AppShell title={`${board.ownerUsername} · #${board.id}`}>
+    <AppShell title={`${board.ownerUsername} · ${moodboardDisplayName(board)}`}>
       <div className="editor-page">
         <div className="editor-page-toolbar card">
           {isOwner && (

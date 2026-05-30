@@ -12,6 +12,33 @@
   background: rgba(255, 255, 255, 0.92);
 }
 
+.editor-page-name-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1 1 12rem;
+  min-width: 10rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.editor-page-name-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid var(--ediary-text);
+  border-radius: var(--radius-btn);
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--ediary-text);
+  background: var(--ediary-white);
+}
+
+.editor-page-name-input:focus {
+  outline: 2px solid var(--ediary-accent, #c45c8a);
+  outline-offset: 1px;
+}
+
 .editor-page-save {
   width: auto;
   max-width: none;

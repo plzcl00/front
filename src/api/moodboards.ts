@@ -1,7 +1,9 @@
 import type {
+  LikedMoodboardSummary,
   MediaUploadResponse,
   Moodboard,
   MoodboardContent,
+  MoodboardCreateRequest,
 } from '../types/api';
 import { apiRequest, apiRequestBytes } from './client';
 
@@ -13,6 +15,7 @@ function userPath(username: string): string {
 function normalizeMoodboard(raw: Moodboard & { public?: boolean }): Moodboard {
   return {
     ...raw,
+    name: raw.name?.trim() || 'Sin título',
     isPublic: raw.isPublic ?? raw.public ?? false,
   };
 }
@@ -40,11 +43,27 @@ export async function getMoodboard(
 
 export async function createMoodboard(
   username: string,
-  content: MoodboardContent,
+  request: MoodboardContent | MoodboardCreateRequest,
 ): Promise<Moodboard> {
+  const body: MoodboardCreateRequest =
+    'version' in request
+      ? { content: request, name: 'Sin título' }
+      : { ...request, name: request.name ?? 'Sin título' };
   const raw = await apiRequest<Moodboard & { public?: boolean }>(
     `${userPath(username)}/moodboards`,
-    { method: 'POST', body: content },
+    { method: 'POST', body },
+  );
+  return normalizeMoodboard(raw);
+}
+
+export async function renameMoodboard(
+  username: string,
+  moodboardId: number,
+  name: string,
+): Promise<Moodboard> {
+  const raw = await apiRequest<Moodboard & { public?: boolean }>(
+    `${userPath(username)}/moodboards/${moodboardId}`,
+    { method: 'PATCH', body: { name } },
   );
   return normalizeMoodboard(raw);
 }
@@ -143,8 +162,12 @@ export function getLikeCount(
   );
 }
 
-export function getLikedMoodboardIds(username: string): Promise<number[]> {
-  return apiRequest<number[]>(`${userPath(username)}/liked-moodboards`);
+export function getLikedMoodboards(
+  username: string,
+): Promise<LikedMoodboardSummary[]> {
+  return apiRequest<LikedMoodboardSummary[]>(
+    `${userPath(username)}/liked-moodboards`,
+  );
 }
 
 export function uploadMedia(

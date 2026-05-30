@@ -44,8 +44,20 @@ export interface MoodboardContent {
 export interface Moodboard {
   id: number;
   ownerUsername: string;
+  name: string;
   isPublic: boolean;
   content: MoodboardContent;
+}
+
+export interface LikedMoodboardSummary {
+  id: number;
+  ownerUsername: string;
+  name: string;
+}
+
+export interface MoodboardCreateRequest {
+  content: MoodboardContent;
+  name?: string;
 }
 
 export interface MediaUploadResponse {

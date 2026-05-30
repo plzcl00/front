@@ -1,0 +1,13 @@
+node_modules
+dist
+.git
+.gitignore
+.idea
+*.md
+.env
+.env.*
+!.env.example
+inspection
+src/assetsFigmaNoUsados
+*.fig
+emotion-diary-web.fig

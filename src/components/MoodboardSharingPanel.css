@@ -1,0 +1,99 @@
+.sharing-panel {
+  border-radius: var(--radius-card);
+  padding: 1.25rem;
+  min-width: 240px;
+  max-width: 300px;
+  background: var(--ediary-white);
+  box-shadow: var(--shadow-card);
+  flex-shrink: 0;
+}
+
+.sharing-panel h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  text-align: left;
+  color: var(--ediary-text);
+}
+
+.sharing-panel p {
+  text-align: left;
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+}
+
+.sharing-error {
+  color: var(--ediary-error);
+  font-size: 0.9rem;
+}
+
+.sharing-panel button {
+  padding: 0.45rem 0.85rem;
+  border-radius: var(--radius-btn);
+  border: none;
+  background-color: var(--ediary-pink);
+  color: var(--ediary-white);
+  font-family: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  margin-bottom: 0.5rem;
+}
+
+.sharing-panel button:hover:not(:disabled) {
+  background-color: rgba(250, 128, 149, 0.75);
+  color: var(--ediary-text);
+}
+
+.sharing-panel button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.sharing-grant-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0.75rem 0;
+}
+
+.sharing-grant-form label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: left;
+}
+
+.sharing-grant-form input {
+  padding: 0.5rem;
+  border: 1px solid var(--ediary-pink);
+  border-radius: var(--radius-btn);
+  font-family: inherit;
+}
+
+.sharing-granted-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sharing-granted-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+  font-size: 0.9rem;
+}
+
+.sharing-granted-list button {
+  margin: 0;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+  background: transparent;
+  border: 1px solid var(--ediary-error);
+  color: var(--ediary-error);
+}
+
+.sharing-likers {
+  font-size: 0.85rem;
+  color: var(--ediary-text-muted);
+}

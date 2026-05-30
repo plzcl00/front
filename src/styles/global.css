@@ -1,0 +1,350 @@
+@import './tokens.css';
+
+@font-face {
+  font-family: 'Montserrat';
+  src: url('../assets/fonts/Montserrat-Normal.ttf') format('truetype');
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  font-family: 'Montserrat', sans-serif;
+}
+
+body {
+  min-height: 100vh;
+  background-image: var(--ediary-gradient);
+  color: var(--ediary-text);
+}
+
+#root {
+  min-height: 100vh;
+}
+
+h1,
+p {
+  text-align: center;
+  color: var(--ediary-text);
+}
+
+p {
+  margin-bottom: 8%;
+}
+
+a {
+  color: var(--ediary-pink);
+  font-weight: 500;
+}
+
+/* Header */
+header {
+  display: grid;
+  grid-template-columns: 4fr 6fr;
+  align-items: center;
+  width: 100%;
+  min-height: 80px;
+  background-color: var(--ediary-pink);
+  padding: 10px 2%;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.logo {
+  width: 125px;
+}
+
+header .logo-link {
+  margin-left: 5%;
+  display: inline-block;
+}
+
+.botones-encabezado {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: flex-end;
+  margin-right: 5%;
+}
+
+.botones-encabezado button,
+a.btn-registro,
+a.btn-inicio-sesion,
+button.btn-registro,
+button.btn-inicio-sesion,
+button.btn-idioma {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: auto;
+  width: 100%;
+  max-width: 150px;
+  padding: 8px 12px;
+  color: var(--ediary-text);
+  font-family: 'Montserrat', sans-serif;
+  border-radius: var(--radius-btn);
+  font-size: 16px;
+  font-weight: normal;
+  cursor: pointer;
+  text-decoration: none;
+  border: none;
+}
+
+.btn-idioma {
+  border: 2px solid var(--ediary-text);
+  background-color: transparent;
+}
+
+.btn-idioma img {
+  width: 18px;
+  height: 18px;
+}
+
+.btn-registro {
+  background-color: var(--ediary-yellow);
+}
+
+.btn-inicio-sesion {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.btn-registro:hover,
+.btn-inicio-sesion:hover,
+.btn-idioma:hover {
+  background-color: var(--ediary-white);
+}
+
+.btn-registro:active,
+.btn-inicio-sesion:active,
+.btn-idioma:active {
+  transform: scale(0.98);
+}
+
+/* Layout */
+.contenido-pagina {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  width: 100%;
+}
+
+.contenido-pagina--auth {
+  margin-top: 8%;
+  margin-bottom: 8%;
+}
+
+/* Cards */
+.card {
+  background-color: var(--ediary-white);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.card--elevated {
+  box-shadow: var(--shadow-elevated);
+}
+
+.pill-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  background-color: rgba(255, 255, 255, 0.6);
+}
+
+/* Forms */
+.form-container {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  max-width: 500px;
+  color: var(--ediary-text);
+  background-color: var(--ediary-white);
+  padding: 50px;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.form-container h2 {
+  margin-bottom: 8px;
+  font-size: 24px;
+  text-align: center;
+}
+
+.form-container > p {
+  font-size: 14px;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.form-error {
+  color: var(--ediary-error);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.form-hint {
+  font-size: 0.85rem;
+  color: var(--ediary-text-muted);
+  margin-top: 0.25rem;
+}
+
+.form-group {
+  margin-bottom: 30px;
+  width: 100%;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  text-align: left;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--ediary-pink);
+  border-radius: var(--radius-btn);
+  background-color: var(--ediary-white);
+  color: #333333;
+  font-size: 15px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--ediary-focus);
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+}
+
+.form-group-checkbox {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  margin-bottom: 12%;
+  gap: 10px;
+}
+
+.form-group-checkbox label {
+  font-size: 14px;
+  text-align: left;
+  margin-bottom: 0;
+}
+
+.btn-registro-form {
+  width: 100%;
+  height: 45px;
+  padding: 8px 5px;
+  color: var(--ediary-white);
+  font-family: 'Montserrat', sans-serif;
+  border-radius: var(--radius-btn);
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  background-color: var(--ediary-pink);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-registro-form:hover {
+  background-color: rgba(250, 128, 149, 0.5);
+  color: var(--ediary-text);
+}
+
+.btn-registro-form:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-google {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px;
+  margin-bottom: 1.5rem;
+  border: 1px solid #ddd;
+  border-radius: var(--radius-btn);
+  background: var(--ediary-white);
+  color: var(--ediary-text);
+  font-family: inherit;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.btn-google img {
+  width: 20px;
+  height: 20px;
+}
+
+.form-divider {
+  text-align: center;
+  color: var(--ediary-text-muted);
+  font-size: 14px;
+  margin: 0 0 1.25rem;
+}
+
+.contrasenia-olvidada {
+  color: var(--ediary-text);
+  font-size: 14px;
+  display: block;
+  margin-top: 0.5rem;
+  text-align: left;
+}
+
+/* Footer */
+footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--ediary-text);
+  margin-bottom: 5%;
+  width: 100%;
+}
+
+footer .logo {
+  margin-bottom: 5%;
+}
+
+.footer-terminos {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  max-width: 800px;
+  padding: 0 20px;
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .footer-terminos {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  header {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    padding-bottom: 1rem;
+  }
+
+  .botones-encabezado {
+    justify-content: center;
+    margin-right: 0;
+  }
+}

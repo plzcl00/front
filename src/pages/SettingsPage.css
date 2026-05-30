@@ -1,0 +1,23 @@
+.settings-page {
+  padding: 1.5rem;
+  max-width: 480px;
+}
+
+.settings-page-user {
+  text-align: left;
+  margin-bottom: 1rem;
+}
+
+.settings-page-hint {
+  text-align: left;
+  color: var(--ediary-text-muted);
+  margin-bottom: 1.5rem;
+}
+
+.settings-page-logout {
+  margin-bottom: 1rem;
+}
+
+.settings-page-back {
+  font-weight: 600;
+}

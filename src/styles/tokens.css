@@ -1,0 +1,22 @@
+:root {
+  --ediary-pink: #fa8095;
+  --ediary-orange: #f58b24;
+  --ediary-yellow: #f0c85b;
+  --ediary-teal: #1d636b;
+  --ediary-text: #222222;
+  --ediary-text-muted: #666666;
+  --ediary-white: #ffffff;
+  --ediary-error: #b00020;
+  --ediary-focus: #4a90e2;
+  --ediary-card-placeholder: #f5f5f5;
+  --ediary-gradient: linear-gradient(
+    180deg,
+    var(--ediary-pink),
+    var(--ediary-orange),
+    var(--ediary-yellow)
+  );
+  --radius-card: 12px;
+  --radius-btn: 6px;
+  --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-elevated: 0 8px 24px rgba(0, 0, 0, 0.12);
+}

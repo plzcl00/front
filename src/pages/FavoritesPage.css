@@ -1,0 +1,26 @@
+.favorites-page {
+  padding: 1.5rem;
+  max-width: 560px;
+}
+
+.favorites-page-error {
+  color: var(--ediary-error);
+}
+
+.favorites-page-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem;
+}
+
+.favorites-page-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.favorites-page-back {
+  font-weight: 600;
+}

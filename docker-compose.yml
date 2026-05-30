@@ -1,0 +1,21 @@
+# WebStorm / IntelliJ: open Services → Docker → Compose, then start `front`.
+# Requires the API on http://localhost:8080 (e.g. emotion-diary-server docker-compose `app` service).
+
+name: ediary-front
+
+services:
+  front:
+    image: node:22-alpine
+    container_name: ediary_front_dev
+    working_dir: /app
+    environment:
+      VITE_API_URL: http://localhost:8080
+    volumes:
+      - .:/app
+      - front_node_modules:/app/node_modules
+    command: sh -c "npm ci && npm run dev -- --host 0.0.0.0 --port 5173"
+    ports:
+      - "5173:5173"
+
+volumes:
+  front_node_modules:

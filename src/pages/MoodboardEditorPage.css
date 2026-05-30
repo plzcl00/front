@@ -1,0 +1,94 @@
+.editor-page {
+  width: 100%;
+}
+
+.editor-page-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.editor-page-name-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1 1 12rem;
+  min-width: 10rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.editor-page-name-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid var(--ediary-text);
+  border-radius: var(--radius-btn);
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--ediary-text);
+  background: var(--ediary-white);
+}
+
+.editor-page-name-input:focus {
+  outline: 2px solid var(--ediary-accent, #c45c8a);
+  outline-offset: 1px;
+}
+
+.editor-page-save {
+  width: auto;
+  max-width: none;
+  padding: 0 1.5rem;
+}
+
+.editor-page-link {
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.editor-page-btn-secondary {
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-btn);
+  border: 2px solid var(--ediary-text);
+  background: transparent;
+  font-family: inherit;
+  cursor: pointer;
+  color: var(--ediary-text);
+}
+
+.editor-page-btn-secondary:hover {
+  background: var(--ediary-white);
+}
+
+.editor-page-layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.editor-page-canvas {
+  flex: 1;
+  min-width: min(100%, 920px);
+  padding: 1rem;
+}
+
+.editor-page-error {
+  color: var(--ediary-error);
+  text-align: center;
+}
+
+.editor-page-status {
+  text-align: center;
+  color: var(--ediary-text);
+}
+
+@media (max-width: 768px) {
+  .editor-page-layout {
+    flex-direction: column;
+  }
+}

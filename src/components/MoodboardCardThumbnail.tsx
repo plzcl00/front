@@ -21,6 +21,7 @@ export function MoodboardCardThumbnail({
         ownerUsername={ownerUsername}
         moodboardId={moodboardId}
         hasThumbnail
+        content={content}
       />
     );
   }

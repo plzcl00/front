@@ -5,7 +5,8 @@ import {
   createMoodboard,
   deleteMoodboard,
   getLikedMoodboards,
-  listMoodboards,
+  listMoodboardsPage,
+  MOODBOARD_PAGE_SIZE,
 } from '../api/moodboards';
 import { getDiaryEntry } from '../api/diary';
 import { createEmptyMoodboardContent } from '../lib/moodboardContent';
@@ -31,35 +32,72 @@ export function Dashboard() {
   const { query } = useSearch();
 
   const [boards, setBoards] = useState<Moodboard[]>([]);
+  const [page, setPage] = useState(0);
+  const [hasNext, setHasNext] = useState(false);
+  const [totalItems, setTotalItems] = useState(0);
   const [likedBoards, setLikedBoards] = useState<LikedMoodboardSummary[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<number | null>(null);
   const [todayDiaryFilled, setTodayDiaryFilled] = useState<boolean | null>(null);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+  const loadSidebar = useCallback(async () => {
     try {
-      const [list, liked, todayEntry] = await Promise.all([
-        listMoodboards(username),
+      const [liked, todayEntry] = await Promise.all([
         getLikedMoodboards(username),
         getDiaryEntry(username, todayIso()),
       ]);
-      setBoards(list);
       setLikedBoards(liked);
       setTodayDiaryFilled(todayEntry !== null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudieron cargar los moodboards');
-    } finally {
-      setLoading(false);
+    } catch {
+      setLikedBoards([]);
+      setTodayDiaryFilled(null);
     }
   }, [username]);
 
+  const loadPage = useCallback(
+    async (pageIndex: number, append: boolean) => {
+      if (append) {
+        setLoadingMore(true);
+      } else {
+        setLoading(true);
+      }
+      setError(null);
+      try {
+        const result = await listMoodboardsPage(
+          username,
+          pageIndex,
+          MOODBOARD_PAGE_SIZE,
+        );
+        setPage(result.page);
+        setHasNext(result.hasNext);
+        setTotalItems(result.totalItems);
+        setBoards((prev) => (append ? [...prev, ...result.items] : result.items));
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : 'No se pudieron cargar los moodboards',
+        );
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
+      }
+    },
+    [username],
+  );
+
   useEffect(() => {
-    void load();
-  }, [load]);
+    void loadPage(0, false);
+    void loadSidebar();
+  }, [loadPage, loadSidebar]);
+
+  const handleLoadMore = () => {
+    if (!hasNext || loadingMore) {
+      return;
+    }
+    void loadPage(page + 1, true);
+  };
 
   const handleCreate = async () => {
     setBusy(true);
@@ -78,7 +116,8 @@ export function Dashboard() {
     try {
       await deleteMoodboard(username, id);
       setDeleteTarget(null);
-      await load();
+      setBoards((prev) => prev.filter((board) => board.id !== id));
+      setTotalItems((prev) => Math.max(0, prev - 1));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al eliminar');
     } finally {
@@ -183,7 +222,26 @@ export function Dashboard() {
               </article>
             ))}
           </div>
-          {!loading && boards.length === 0 && (
+
+          {!loading && boards.length > 0 && (
+            <div className="explore-page-footer">
+              <p className="explore-page-count">
+                Mostrando {boards.length} de {totalItems}
+              </p>
+              {hasNext && (
+                <button
+                  type="button"
+                  className="btn-registro explore-page-load-more"
+                  disabled={loadingMore}
+                  onClick={handleLoadMore}
+                >
+                  {loadingMore ? 'Cargando…' : 'Cargar más'}
+                </button>
+              )}
+            </div>
+          )}
+
+          {!loading && boards.length === 0 && !error && (
             <p className="dashboard-empty">Aún no tienes moodboards. Crea el primero.</p>
           )}
           {!loading && boards.length > 0 && filteredBoards.length === 0 && hasSearch && (

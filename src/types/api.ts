@@ -76,10 +76,20 @@ export interface PublicMoodboardFeedItem {
   name: string;
   hasThumbnail: boolean;
   likeCount?: number;
+  content?: MoodboardContent;
 }
 
 export interface PublicMoodboardsPage {
   items: PublicMoodboardFeedItem[];
+  page: number;
+  size: number;
+  totalItems: number;
+  totalPages: number;
+  hasNext: boolean;
+}
+
+export interface MoodboardsPage {
+  items: Moodboard[];
   page: number;
   size: number;
   totalItems: number;

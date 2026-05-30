@@ -89,8 +89,7 @@ button.btn-idioma {
   justify-content: center;
   gap: 6px;
   height: auto;
-  width: 100%;
-  max-width: 150px;
+  width: auto;
   padding: 8px 12px;
   color: var(--ediary-text);
   font-family: 'Montserrat', sans-serif;
@@ -100,6 +99,7 @@ button.btn-idioma {
   cursor: pointer;
   text-decoration: none;
   border: none;
+  white-space: nowrap;
 }
 
 .btn-idioma {

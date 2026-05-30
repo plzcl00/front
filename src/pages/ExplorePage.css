@@ -1,0 +1,52 @@
+.explore-page {
+  padding: 1.5rem;
+}
+
+.explore-page-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.explore-page-count {
+  color: var(--ediary-text);
+  font-size: 0.9rem;
+}
+
+.explore-page-load-more {
+  max-width: 200px;
+  color: var(--ediary-text);
+  border: none;
+  height: auto;
+  width: auto;
+  padding: 10px 20px;
+}
+
+.explore-page-load-more:hover:not(:disabled) {
+  background-color: var(--ediary-white);
+}
+
+.explore-page-load-more:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.explore-page-error {
+  color: var(--ediary-error);
+  text-align: center;
+}
+
+.explore-page-status,
+.explore-page-empty {
+  text-align: center;
+  color: var(--ediary-text);
+}
+
+.explore-card-owner {
+  margin: 0 0 0.35rem;
+  font-size: 0.85rem;
+  color: var(--ediary-text);
+  opacity: 0.75;
+}

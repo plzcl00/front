@@ -1,6 +1,8 @@
 import { NavLink, Link, useLocation } from 'react-router-dom';
-import type { ReactNode } from 'react';
+import type { ChangeEvent, ReactNode } from 'react';
+import { useSearch } from '../search/SearchContext';
 import iconGrid from '../assets/icons/layout-grid.svg';
+import iconEye from '../assets/icons/eye.svg';
 import iconHeart from '../assets/icons/heart.svg';
 import iconSettings from '../assets/icons/settings.svg';
 import iconSearch from '../assets/icons/search.svg';
@@ -27,8 +29,12 @@ const navItems: NavItem[] = [
     icon: iconGrid,
     isActive: (pathname) =>
       pathname === '/app' ||
-      pathname.startsWith('/app/moodboards') ||
-      pathname.startsWith('/u/'),
+      pathname.startsWith('/app/moodboards'),
+  },
+  {
+    to: '/app/explorar',
+    label: 'Explorar',
+    icon: iconEye,
   },
   {
     to: '/app/favoritos',
@@ -51,6 +57,11 @@ function navClassName(isActive: boolean): string {
 
 export function AppShell({ children, title }: AppShellProps) {
   const location = useLocation();
+  const { query, setQuery } = useSearch();
+
+  const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setQuery(event.target.value);
+  };
 
   return (
     <div className="app-shell">
@@ -83,7 +94,13 @@ export function AppShell({ children, title }: AppShellProps) {
         <header className="app-shell__topbar">
           <div className="app-shell__search">
             <img src={iconSearch} alt="" />
-            <input type="search" placeholder="Busca" aria-label="Buscar" disabled />
+            <input
+              type="search"
+              placeholder="Busca"
+              aria-label="Buscar"
+              value={query}
+              onChange={handleSearchChange}
+            />
           </div>
           {title && <h1 className="app-shell__title">{title}</h1>}
         </header>

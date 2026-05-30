@@ -83,6 +83,10 @@
   display: block;
 }
 
+.dashboard-card-preview--empty {
+  background: var(--ediary-card-placeholder);
+}
+
 .dashboard-card-body {
   padding: 1rem;
 }

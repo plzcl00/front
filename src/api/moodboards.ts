@@ -4,6 +4,7 @@ import type {
   Moodboard,
   MoodboardContent,
   MoodboardCreateRequest,
+  PublicMoodboardsPage,
 } from '../types/api';
 import { apiRequest, apiRequestBytes } from './client';
 
@@ -17,6 +18,7 @@ function normalizeMoodboard(raw: Moodboard & { public?: boolean }): Moodboard {
     ...raw,
     name: raw.name?.trim() || 'Sin título',
     isPublic: raw.isPublic ?? raw.public ?? false,
+    hasThumbnail: raw.hasThumbnail ?? false,
   };
 }
 
@@ -208,4 +210,37 @@ export function fetchMediaBlob(
   assetId: number,
 ): Promise<Blob> {
   return apiRequestBytes(mediaUrl(username, moodboardId, assetId));
+}
+
+export function thumbnailPath(username: string, moodboardId: number): string {
+  return `${userPath(username)}/moodboards/${moodboardId}/thumbnail`;
+}
+
+export function fetchThumbnailBlob(
+  username: string,
+  moodboardId: number,
+): Promise<Blob> {
+  return apiRequestBytes(thumbnailPath(username, moodboardId));
+}
+
+export function uploadThumbnail(
+  username: string,
+  moodboardId: number,
+  blob: Blob,
+): Promise<void> {
+  const formData = new FormData();
+  formData.append('file', blob, 'thumbnail.jpg');
+  return apiRequest<void>(thumbnailPath(username, moodboardId), {
+    method: 'PUT',
+    formData,
+  });
+}
+
+export async function listPublicMoodboards(
+  page = 0,
+  size = 24,
+): Promise<PublicMoodboardsPage> {
+  return apiRequest<PublicMoodboardsPage>(
+    `/public/moodboards?page=${page}&size=${size}`,
+  );
 }

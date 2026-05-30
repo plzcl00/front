@@ -32,6 +32,7 @@ interface FabricMoodboardEditorProps {
   onSaved?: (content: MoodboardContent) => void;
   onPersist?: (content: MoodboardContent) => Promise<void>;
   saveRef?: MutableRefObject<(() => Promise<MoodboardContent>) | null>;
+  exportThumbnailRef?: MutableRefObject<(() => Promise<Blob>) | null>;
 }
 
 function applyReadOnly(canvas: Canvas) {
@@ -53,6 +54,17 @@ function tuneTextObjects(canvas: Canvas) {
   }
 }
 
+function dataUrlToBlob(dataUrl: string): Blob {
+  const [header, base64] = dataUrl.split(',');
+  const mime = header.match(/:(.*?);/)?.[1] ?? 'image/jpeg';
+  const bytes = atob(base64);
+  const arr = new Uint8Array(bytes.length);
+  for (let i = 0; i < bytes.length; i++) {
+    arr[i] = bytes.charCodeAt(i);
+  }
+  return new Blob([arr], { type: mime });
+}
+
 export function FabricMoodboardEditor({
   ownerUsername,
   moodboardId,
@@ -61,6 +73,7 @@ export function FabricMoodboardEditor({
   onSaved,
   onPersist,
   saveRef,
+  exportThumbnailRef,
 }: FabricMoodboardEditorProps) {
   const canvasElRef = useRef<HTMLCanvasElement>(null);
   const fabricRef = useRef<Canvas | null>(null);
@@ -108,6 +121,20 @@ export function FabricMoodboardEditor({
     return content;
   }, [persistCanvas, onPersist, ownerUsername, moodboardId]);
 
+  const exportThumbnail = useCallback(async (): Promise<Blob> => {
+    const canvas = fabricRef.current;
+    if (!canvas) {
+      throw new Error('Canvas no inicializado');
+    }
+    const width = canvas.getWidth();
+    const dataUrl = canvas.toDataURL({
+      format: 'jpeg',
+      quality: 0.82,
+      multiplier: Math.min(1, 400 / width),
+    });
+    return dataUrlToBlob(dataUrl);
+  }, []);
+
   useEffect(() => {
     if (saveRef) {
       saveRef.current = saveCanvas;
@@ -118,6 +145,17 @@ export function FabricMoodboardEditor({
       }
     };
   }, [saveRef, saveCanvas]);
+
+  useEffect(() => {
+    if (exportThumbnailRef) {
+      exportThumbnailRef.current = exportThumbnail;
+    }
+    return () => {
+      if (exportThumbnailRef) {
+        exportThumbnailRef.current = null;
+      }
+    };
+  }, [exportThumbnailRef, exportThumbnail]);
 
   useEffect(() => {
     let cancelled = false;

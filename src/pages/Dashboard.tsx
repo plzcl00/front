@@ -13,13 +13,15 @@ import { createEmptyMoodboardContent } from '../lib/moodboardContent';
 import { moodboardDisplayName } from '../lib/moodboardDisplay';
 import type { LikedMoodboardSummary, Moodboard } from '../types/api';
 import { AppShell } from '../components/AppShell';
-import { MoodboardCardPreview } from '../components/MoodboardCardPreview';
+import { matchesMoodboardSearch, useSearch } from '../search/SearchContext';
+import { MoodboardCardThumbnail } from '../components/MoodboardCardThumbnail';
 import './Dashboard.css';
 
 export function Dashboard() {
   const { session } = useAuth();
   const username = session!.username;
   const navigate = useNavigate();
+  const { query } = useSearch();
 
   const [boards, setBoards] = useState<Moodboard[]>([]);
   const [likedBoards, setLikedBoards] = useState<LikedMoodboardSummary[]>([]);
@@ -86,6 +88,12 @@ export function Dashboard() {
     }
   };
 
+  const filteredBoards = boards.filter((board) => matchesMoodboardSearch(board, query));
+  const filteredLikedBoards = likedBoards.filter((board) =>
+    matchesMoodboardSearch(board, query),
+  );
+  const hasSearch = query.trim().length > 0;
+
   const handleTogglePublic = async (board: Moodboard) => {
     setBusy(true);
     try {
@@ -117,7 +125,7 @@ export function Dashboard() {
           {error && <p className="dashboard-error">{error}</p>}
 
           <div className="dashboard-grid">
-            {boards.map((board, index) => (
+            {filteredBoards.map((board, index) => (
               <article
                 key={board.id}
                 className={`dashboard-card ${index % 3 === 1 ? 'dashboard-card--tall' : ''}`}
@@ -126,10 +134,11 @@ export function Dashboard() {
                   to={`/app/moodboards/${board.id}`}
                   className="dashboard-card-link"
                 >
-                  <MoodboardCardPreview
-                    content={board.content}
+                  <MoodboardCardThumbnail
                     ownerUsername={board.ownerUsername}
                     moodboardId={board.id}
+                    hasThumbnail={board.hasThumbnail}
+                    content={board.content}
                   />
                   <div className="dashboard-card-body">
                     <h2>{moodboardDisplayName(board)}</h2>
@@ -163,15 +172,20 @@ export function Dashboard() {
           {!loading && boards.length === 0 && (
             <p className="dashboard-empty">Aún no tienes moodboards. Crea el primero.</p>
           )}
+          {!loading && boards.length > 0 && filteredBoards.length === 0 && hasSearch && (
+            <p className="dashboard-empty">Ningún moodboard coincide con tu búsqueda.</p>
+          )}
         </div>
 
         <aside className="dashboard-sidebar card card--elevated">
           <h2 className="dashboard-sidebar-title">Mis favoritos</h2>
           {likedBoards.length === 0 ? (
             <p className="dashboard-sidebar-empty">No has marcado moodboards con me gusta.</p>
+          ) : filteredLikedBoards.length === 0 && hasSearch ? (
+            <p className="dashboard-sidebar-empty">Ningún favorito coincide con tu búsqueda.</p>
           ) : (
             <ul className="dashboard-favorites-list">
-              {likedBoards.map((liked) => (
+              {filteredLikedBoards.map((liked) => (
                 <li key={liked.id}>
                   <Link to={`/u/${liked.ownerUsername}/moodboards/${liked.id}`}>
                     {moodboardDisplayName(liked)}

@@ -5,11 +5,13 @@ import { getLikedMoodboards } from '../api/moodboards';
 import { moodboardDisplayName } from '../lib/moodboardDisplay';
 import type { LikedMoodboardSummary } from '../types/api';
 import { AppShell } from '../components/AppShell';
+import { matchesMoodboardSearch, useSearch } from '../search/SearchContext';
 import './FavoritesPage.css';
 
 export function FavoritesPage() {
   const { session } = useAuth();
   const username = session!.username;
+  const { query } = useSearch();
   const [likedBoards, setLikedBoards] = useState<LikedMoodboardSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -31,6 +33,11 @@ export function FavoritesPage() {
     void load();
   }, [load]);
 
+  const filteredLikedBoards = likedBoards.filter((board) =>
+    matchesMoodboardSearch(board, query),
+  );
+  const hasSearch = query.trim().length > 0;
+
   return (
     <AppShell title="Mis favoritos">
       <div className="favorites-page card card--elevated">
@@ -39,8 +46,11 @@ export function FavoritesPage() {
         {!loading && likedBoards.length === 0 && (
           <p>No has marcado moodboards con me gusta todavía.</p>
         )}
+        {!loading && likedBoards.length > 0 && filteredLikedBoards.length === 0 && hasSearch && (
+          <p>Ningún favorito coincide con tu búsqueda.</p>
+        )}
         <ul className="favorites-page-list">
-          {likedBoards.map((liked) => (
+          {filteredLikedBoards.map((liked) => (
             <li key={liked.id}>
               <span>{moodboardDisplayName(liked)}</span>
               <Link to={`/u/${liked.ownerUsername}/moodboards/${liked.id}`}>

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
-import { getMoodboard, renameMoodboard, updateMoodboard } from '../api/moodboards';
+import { getMoodboard, renameMoodboard, updateMoodboard, uploadThumbnail } from '../api/moodboards';
 import type { Moodboard, MoodboardContent } from '../types/api';
 import { FabricMoodboardEditor } from '../fabric/FabricMoodboardEditor';
 import { AppShell } from '../components/AppShell';
@@ -22,6 +22,7 @@ export function MoodboardEditorPage() {
   const [saving, setSaving] = useState(false);
   const [draftName, setDraftName] = useState('');
   const saveCanvasRef = useRef<(() => Promise<MoodboardContent>) | null>(null);
+  const exportThumbnailRef = useRef<(() => Promise<Blob>) | null>(null);
 
   const load = useCallback(async () => {
     if (Number.isNaN(moodboardId)) {
@@ -68,6 +69,14 @@ export function MoodboardEditorPage() {
         await renameMoodboard(username, board.id, trimmedName);
       }
       await saveCanvasRef.current();
+      if (exportThumbnailRef.current) {
+        try {
+          const thumbnail = await exportThumbnailRef.current();
+          await uploadThumbnail(username, board.id, thumbnail);
+        } catch (thumbErr) {
+          console.warn('No se pudo subir la miniatura', thumbErr);
+        }
+      }
       navigate('/app');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al guardar');
@@ -134,6 +143,7 @@ export function MoodboardEditorPage() {
               moodboardId={board.id}
               initialContent={board.content}
               saveRef={saveCanvasRef}
+              exportThumbnailRef={exportThumbnailRef}
               onPersist={handlePersist}
             />
           </div>

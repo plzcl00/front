@@ -46,6 +46,7 @@ export interface Moodboard {
   ownerUsername: string;
   name: string;
   isPublic: boolean;
+  hasThumbnail: boolean;
   content: MoodboardContent;
 }
 
@@ -64,4 +65,20 @@ export interface MediaUploadResponse {
   assetId: number;
   contentType: string;
   sizeBytes: number;
+}
+
+export interface PublicMoodboardFeedItem {
+  id: number;
+  ownerUsername: string;
+  name: string;
+  hasThumbnail: boolean;
+}
+
+export interface PublicMoodboardsPage {
+  items: PublicMoodboardFeedItem[];
+  page: number;
+  size: number;
+  totalItems: number;
+  totalPages: number;
+  hasNext: boolean;
 }

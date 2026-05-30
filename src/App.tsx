@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './auth/AuthContext';
+import { SearchProvider } from './search/SearchContext';
 import { ProtectedRoute } from './auth/ProtectedRoute';
 import { ResetPassword } from './ResetPassword';
 import { Home } from './Home';
@@ -9,12 +10,14 @@ import { Dashboard } from './pages/Dashboard';
 import { MoodboardEditorPage } from './pages/MoodboardEditorPage';
 import { MoodboardViewPage } from './pages/MoodboardViewPage';
 import { FavoritesPage } from './pages/FavoritesPage';
+import { ExplorePage } from './pages/ExplorePage';
 import { SettingsPage } from './pages/SettingsPage';
 import './App.css';
 
 export function App() {
   return (
     <AuthProvider>
+      <SearchProvider>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -26,6 +29,14 @@ export function App() {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/app/explorar"
+            element={
+              <ProtectedRoute>
+                <ExplorePage />
               </ProtectedRoute>
             }
           />
@@ -68,6 +79,7 @@ export function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
+      </SearchProvider>
     </AuthProvider>
   );
 }

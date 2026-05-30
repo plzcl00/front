@@ -1,26 +1,10 @@
-# WebStorm / IntelliJ: open Services → Docker → Compose, then start `front` or `front-dev`.
+# WebStorm / IntelliJ: open Services → Docker → Compose, then start `front`.
 # Requires the API on http://localhost:8080 (e.g. emotion-diary-server docker-compose `app` service).
 
 name: ediary-front
 
 services:
-  # Production-like SPA (nginx + static build). http://localhost:5173
   front:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        VITE_API_URL: http://localhost:8080
-    image: ediary-front:latest
-    pull_policy: build
-    container_name: ediary_front
-    ports:
-      - "5173:80"
-
-  # Vite dev server with hot reload. http://localhost:5173 — do not run together with `front`.
-  front-dev:
-    profiles:
-      - dev
     image: node:22-alpine
     container_name: ediary_front_dev
     working_dir: /app

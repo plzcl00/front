@@ -14,10 +14,9 @@ Open the `front` folder in WebStorm, then **View → Tool Windows → Services �
 
 | Service | Command (CLI) | URL |
 |---------|---------------|-----|
-| `front` | `docker compose up front --build` | http://localhost:5173 (nginx) |
-| `front-dev` | `docker compose --profile dev up front-dev` | http://localhost:5173 (Vite HMR) |
+| `front` | `docker compose up front` | http://localhost:5173 (Vite HMR) |
 
-Start the API first (`emotion-diary-server` on port 8080). Only run **one** of `front` or `front-dev` at a time (both use host port 5173).
+Start the API first (`emotion-diary-server` on port 8080).
 
 Ensure the API allows the SPA origin in `APP_CORS_ALLOWED_ORIGINS` (e.g. `http://localhost:5173`).
 

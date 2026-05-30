@@ -17,7 +17,7 @@ export function SignIn() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
@@ -74,6 +74,10 @@ export function SignIn() {
             </div>
 
             {error && <p className="form-error">{error}</p>}
+
+            <Link to="/reset-password" className="contrasenia-olvidada">
+              ¿Olvidaste tu contraseña?
+            </Link>
 
             <button type="submit" className="btn-registro-form" disabled={loading}>
               {loading ? 'Entrando…' : 'Iniciar sesión'}

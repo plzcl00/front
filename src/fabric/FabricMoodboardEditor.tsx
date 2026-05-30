@@ -1,5 +1,5 @@
 import { Canvas, Circle, FabricImage, IText, Rect } from 'fabric';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type MutableRefObject } from 'react';
 import type { MoodboardContent } from '../types/api';
 import { uploadMedia, deleteMedia } from '../api/moodboards';
 import {
@@ -32,26 +32,26 @@ interface FabricMoodboardEditorProps {
   readOnly?: boolean;
   onSaved?: (content: MoodboardContent) => void;
   onPersist?: (content: MoodboardContent) => Promise<void>;
-  saveRef?: React.MutableRefObject<(() => Promise<MoodboardContent>) | null>;
+  saveRef?: MutableRefObject<(() => Promise<MoodboardContent>) | null>;
 }
 
 function applyReadOnly(canvas: Canvas) {
   canvas.selection = false;
-  canvas.forEachObject((obj) => {
+  for (const obj of canvas.getObjects()) {
     obj.selectable = false;
     obj.evented = false;
-  });
+  }
 }
 
 function tuneTextObjects(canvas: Canvas) {
-  canvas.forEachObject((obj) => {
+  for (const obj of canvas.getObjects()) {
     if (obj.type === 'i-text' || obj.type === 'textbox' || obj.type === 'text') {
       obj.set({
         fontFamily: CANVAS_FONT_FAMILY,
         objectCaching: false,
       });
     }
-  });
+  }
 }
 
 export function FabricMoodboardEditor({
@@ -154,7 +154,7 @@ export function FabricMoodboardEditor({
 
     return () => {
       cancelled = true;
-      canvas.dispose();
+      void canvas.dispose();
       fabricRef.current = null;
       revokeAllBlobUrls();
     };

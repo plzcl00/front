@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import type { Moodboard } from '../types/api';
 import {
   getLikeCount,
@@ -66,7 +66,7 @@ export function MoodboardSharingPanel({
     }
   };
 
-  const handleGrant = async (e: React.FormEvent) => {
+  const handleGrant = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!grantTo.trim()) return;
     setBusy(true);

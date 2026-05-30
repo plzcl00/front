@@ -1,5 +1,5 @@
 import { NavLink, Link, useLocation } from 'react-router-dom';
-import iconHome from '../assets/icons/home.svg';
+import type { ReactNode } from 'react';
 import iconGrid from '../assets/icons/layout-grid.svg';
 import iconHeart from '../assets/icons/heart.svg';
 import iconSettings from '../assets/icons/settings.svg';
@@ -8,7 +8,7 @@ import logo from '../assets/Ediary.png';
 import './AppShell.css';
 
 interface AppShellProps {
-  children: React.ReactNode;
+  children: ReactNode;
   title?: string;
 }
 
@@ -23,15 +23,10 @@ type NavItem = {
 const navItems: NavItem[] = [
   {
     to: '/app',
-    label: 'Inicio',
-    icon: iconHome,
-    end: true,
-  },
-  {
-    to: '/app',
     label: 'Moodboards',
     icon: iconGrid,
     isActive: (pathname) =>
+      pathname === '/app' ||
       pathname.startsWith('/app/moodboards') ||
       pathname.startsWith('/u/'),
   },
@@ -47,8 +42,11 @@ const navItems: NavItem[] = [
   },
 ];
 
-function navClassName(isActive: boolean) {
-  return isActive ? 'app-shell__nav-link is-active' : 'app-shell__nav-link';
+const navLinkClass = 'app-shell__nav-link';
+const navLinkActiveClass = 'app-shell__nav-link is-active';
+
+function navClassName(isActive: boolean): string {
+  return isActive ? navLinkActiveClass : navLinkClass;
 }
 
 export function AppShell({ children, title }: AppShellProps) {
@@ -57,30 +55,27 @@ export function AppShell({ children, title }: AppShellProps) {
   return (
     <div className="app-shell">
       <aside className="app-shell__sidebar" aria-label="Navegación principal">
-        <Link to="/app" className="app-shell__logo" title="E-Diary">
+        <Link to="/" className="app-shell__logo" title="E-Diary">
           <img src={logo} alt="E-Diary" />
         </Link>
         <nav className="app-shell__nav">
-          {navItems.map((item) => {
-            const active = item.isActive
-              ? item.isActive(location.pathname)
-              : undefined;
-
-            return (
+          {navItems.map((item) => (
               <NavLink
                 key={item.label}
                 to={item.to}
                 end={item.end}
-                className={({ isActive: routerActive }) =>
-                  navClassName(active ?? routerActive)
-                }
+                className={({ isActive: routerActive }) => {
+                  const isNavActive = item.isActive
+                    ? item.isActive(location.pathname)
+                    : routerActive;
+                  return navClassName(isNavActive);
+                }}
                 title={item.label}
               >
                 <img src={item.icon} alt="" draggable={false} />
                 <span className="visually-hidden">{item.label}</span>
               </NavLink>
-            );
-          })}
+          ))}
         </nav>
       </aside>
 

@@ -155,11 +155,6 @@ button.btn-idioma {
   box-shadow: var(--shadow-elevated);
 }
 
-.section-title {
-  font-size: 1.75rem;
-  margin-bottom: 0.5rem;
-}
-
 .pill-badge {
   display: inline-block;
   padding: 0.25rem 0.75rem;

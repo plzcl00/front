@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './auth/AuthContext';
 import { ProtectedRoute } from './auth/ProtectedRoute';
+import { ResetPassword } from './ResetPassword';
 import { Home } from './Home';
 import { SignIn } from './SignIn';
 import { SignUp } from './SignUp';
@@ -19,6 +20,7 @@ export function App() {
           <Route path="/" element={<Home />} />
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/sign-up" element={<SignUp />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route
             path="/app"
             element={

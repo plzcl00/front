@@ -39,3 +39,15 @@
 .settings-page-back {
   font-weight: 600;
 }
+
+@media (max-width: 640px) {
+  .settings-page {
+    padding: 1rem 0.75rem;
+    max-width: none;
+  }
+
+  .settings-password-form input {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}

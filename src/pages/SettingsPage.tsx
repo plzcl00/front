@@ -1,5 +1,5 @@
 import { type FormEvent, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { AppShell } from '../components/AppShell';
 import { useAuth } from '../auth/AuthContext';
 import { changePassword } from '../api/auth';
@@ -110,9 +110,6 @@ export function SettingsPage() {
         >
           Cerrar sesión
         </button>
-        <Link to="/app" className="settings-page-back">
-          Volver al panel
-        </Link>
       </div>
     </AppShell>
   );

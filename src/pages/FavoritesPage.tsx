@@ -110,10 +110,6 @@ export function FavoritesPage() {
             </article>
           ))}
         </div>
-
-        <Link to="/app" className="favorites-page-back">
-          Volver al panel
-        </Link>
       </div>
     </AppShell>
   );

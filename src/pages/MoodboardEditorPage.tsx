@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useSession } from '../auth/useSession';
 import { getMoodboard, renameMoodboard, updateMoodboard, uploadThumbnail } from '../api/moodboards';
 import type { Moodboard, MoodboardContent } from '../types/api';
@@ -103,9 +103,6 @@ export function MoodboardEditorPage() {
     return (
       <AppShell title="Editor">
         <p className="editor-page-error">{error}</p>
-        <Link to="/app" className="editor-page-link">
-          Volver al panel
-        </Link>
       </AppShell>
     );
   }
@@ -137,9 +134,6 @@ export function MoodboardEditorPage() {
           >
             {saving ? 'Guardando…' : 'Guardar'}
           </button>
-          <Link to="/app" className="editor-page-link">
-            Volver
-          </Link>
         </div>
         {error && (
           <p className="editor-page-error" role="alert">

@@ -57,3 +57,17 @@
 .metricas-status {
   color: var(--color-text-muted, #666);
 }
+
+@media (max-width: 640px) {
+  .metricas-page {
+    padding: 1rem 0.75rem;
+  }
+
+  .metricas-stats {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+
+  .metricas-chart {
+    min-height: 220px;
+  }
+}

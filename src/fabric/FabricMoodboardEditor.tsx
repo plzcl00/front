@@ -1,4 +1,4 @@
-import { Canvas, Circle, FabricImage, IText, Point, Rect } from 'fabric';
+import { Canvas, Circle, FabricImage, IText, Point, Rect, type FabricObject } from 'fabric';
 import { useCallback, useEffect, useRef, useState, type MutableRefObject } from 'react';
 import type { MoodboardContent } from '../types/api';
 import { uploadMedia, deleteMedia } from '../api/moodboards';
@@ -28,8 +28,53 @@ const MIN_ZOOM = 0.25;
 const MAX_ZOOM = 4;
 const ZOOM_FACTOR = 1.2;
 
+function touchDistance(t1: Touch, t2: Touch): number {
+  return Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+}
+
+function touchCenterPoint(
+  t1: Touch,
+  t2: Touch,
+  rect: DOMRect,
+): Point {
+  return new Point(
+    (t1.clientX + t2.clientX) / 2 - rect.left,
+    (t1.clientY + t2.clientY) / 2 - rect.top,
+  );
+}
+
+function isCoarsePointer(): boolean {
+  return window.matchMedia('(pointer: coarse)').matches;
+}
+
+function isMobileViewport(): boolean {
+  return window.matchMedia('(max-width: 768px)').matches;
+}
+
 function clampUserZoom(scale: number): number {
   return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, scale));
+}
+
+function getVisibleCenterScenePoint(canvas: Canvas, wrap: HTMLElement | null): Point {
+  canvas.calcOffset();
+  if (wrap) {
+    const wrapRect = wrap.getBoundingClientRect();
+    return canvas.getScenePoint({
+      clientX: wrapRect.left + wrapRect.width / 2,
+      clientY: wrapRect.top + wrapRect.height / 2,
+    } as MouseEvent);
+  }
+  return canvas.getVpCenter();
+}
+
+function placeObjectAtVisibleCenter(
+  object: FabricObject,
+  canvas: Canvas,
+  wrap: HTMLElement | null,
+) {
+  const center = getVisibleCenterScenePoint(canvas, wrap);
+  object.setPositionByOrigin(center, 'center', 'center');
+  object.setCoords();
 }
 
 interface FabricMoodboardEditorProps {
@@ -100,6 +145,8 @@ export function FabricMoodboardEditor({
   const controlPressedRef = useRef(false);
   const baseFitZoomRef = useRef(1);
   const userZoomScaleRef = useRef(1);
+  const layoutStateRef = useRef({ width: 0, absoluteZoom: 0 });
+  const lastZoomPercentRef = useRef(100);
 
   const persistCanvas = useCallback(async (): Promise<MoodboardContent> => {
     const canvas = fabricRef.current;
@@ -167,18 +214,38 @@ export function FabricMoodboardEditor({
       return;
     }
 
-    canvas.setDimensions({ width: logicalWidth, height: logicalHeight });
-
-    baseFitZoomRef.current = availableWidth / logicalWidth;
+    const widthRatio = availableWidth / logicalWidth;
+    const fittedHeight = availableWidth * (logicalHeight / logicalWidth);
+    const mobileMaxHeight = Math.min(window.innerHeight * 0.6, 600);
+    const availableHeight = isMobileViewport()
+      ? Math.min(fittedHeight, mobileMaxHeight)
+      : fittedHeight;
+    const heightRatio = availableHeight / logicalHeight;
+    baseFitZoomRef.current = isMobileViewport()
+      ? Math.min(widthRatio, heightRatio)
+      : widthRatio;
     const absoluteZoom =
       baseFitZoomRef.current * clampUserZoom(userZoomScaleRef.current);
+
+    if (
+      !resetPan &&
+      availableWidth === layoutStateRef.current.width &&
+      Math.abs(absoluteZoom - layoutStateRef.current.absoluteZoom) < 0.0001
+    ) {
+      return;
+    }
+    layoutStateRef.current = { width: availableWidth, absoluteZoom };
 
     const vpt = canvas.viewportTransform ?? [1, 0, 0, 1, 0, 0];
     const panX = resetPan ? 0 : vpt[4];
     const panY = resetPan ? 0 : vpt[5];
 
     canvas.setViewportTransform([absoluteZoom, 0, 0, absoluteZoom, panX, panY]);
-    setZoomPercent(Math.round(userZoomScaleRef.current * 100));
+    const nextPercent = Math.round(userZoomScaleRef.current * 100);
+    if (nextPercent !== lastZoomPercentRef.current) {
+      lastZoomPercentRef.current = nextPercent;
+      setZoomPercent(nextPercent);
+    }
     canvas.calcOffset();
     canvas.requestRenderAll();
   }, []);
@@ -262,6 +329,8 @@ export function FabricMoodboardEditor({
     });
     fabricRef.current = canvas;
     userZoomScaleRef.current = 1;
+    layoutStateRef.current = { width: 0, absoluteZoom: 0 };
+    lastZoomPercentRef.current = 100;
 
     const rawJson = extractFabricJson(initialContentRef.current);
     initialAssetIds.current = rawJson ? collectAssetIds(rawJson) : [];
@@ -318,15 +387,18 @@ export function FabricMoodboardEditor({
 
     syncCanvasLayout();
     const wrap = wrapRef.current;
-    const parent = wrap?.parentElement;
-    if (!parent) {
+    if (!wrap) {
       return;
     }
 
-    const observer = new ResizeObserver(() => {
+    const observer = new ResizeObserver((entries) => {
+      const width = Math.floor(entries[0]?.contentRect.width ?? 0);
+      if (width <= 0 || width === layoutStateRef.current.width) {
+        return;
+      }
       syncCanvasLayout(false);
     });
-    observer.observe(parent);
+    observer.observe(wrap);
     return () => observer.disconnect();
   }, [loading, syncCanvasLayout]);
 
@@ -373,6 +445,23 @@ export function FabricMoodboardEditor({
       );
     };
 
+    const canPanWithoutCtrl = () =>
+      isCoarsePointer() &&
+      (readOnly || userZoomScaleRef.current > 1.01);
+
+    const shouldStartPan = (hasTarget: boolean) => {
+      if (isEditingText()) {
+        return false;
+      }
+      if (controlPressedRef.current) {
+        return true;
+      }
+      if (!canPanWithoutCtrl()) {
+        return false;
+      }
+      return !hasTarget;
+    };
+
     const onKeyDown = (event: KeyboardEvent) => {
       if (
         (event.code !== 'ControlLeft' && event.code !== 'ControlRight') ||
@@ -401,8 +490,12 @@ export function FabricMoodboardEditor({
       wrap.classList.remove('fabric-canvas-wrap--pan');
     };
 
-    const onMouseDown = (opt: { e: globalThis.TouchEvent | MouseEvent }) => {
-      if (!controlPressedRef.current) {
+    const onMouseDown = (opt: {
+      e: globalThis.TouchEvent | MouseEvent;
+      target?: unknown;
+    }) => {
+      const hasTarget = opt.target != null;
+      if (!shouldStartPan(hasTarget)) {
         return;
       }
       if (!('clientX' in opt.e)) {
@@ -413,10 +506,19 @@ export function FabricMoodboardEditor({
       canvas.discardActiveObject();
       lastX = opt.e.clientX;
       lastY = opt.e.clientY;
+      if (canPanWithoutCtrl() || controlPressedRef.current) {
+        wrap.classList.add('fabric-canvas-wrap--pan');
+      }
     };
 
     const onMouseMove = (opt: { e: globalThis.TouchEvent | MouseEvent }) => {
-      if (!panning || !controlPressedRef.current) {
+      if (!panning) {
+        return;
+      }
+      if (
+        !controlPressedRef.current &&
+        !canPanWithoutCtrl()
+      ) {
         return;
       }
       if (!('clientX' in opt.e)) {
@@ -437,8 +539,12 @@ export function FabricMoodboardEditor({
     const onMouseUp = () => {
       if (panning) {
         canvas.selection = !readOnly;
+        canvas.calcOffset();
       }
       panning = false;
+      if (!controlPressedRef.current) {
+        wrap.classList.remove('fabric-canvas-wrap--pan');
+      }
     };
 
     window.addEventListener('keydown', onKeyDown);
@@ -457,28 +563,85 @@ export function FabricMoodboardEditor({
     };
   }, [loading, readOnly]);
 
+  useEffect(() => {
+    const wrap = wrapRef.current;
+    const canvas = fabricRef.current;
+    if (!wrap || !canvas || loading) {
+      return;
+    }
+
+    let lastPinchDistance = 0;
+    let pinching = false;
+
+    const onTouchStart = (event: TouchEvent) => {
+      if (event.touches.length === 2) {
+        pinching = true;
+        lastPinchDistance = touchDistance(event.touches[0], event.touches[1]);
+      }
+    };
+
+    const onTouchMove = (event: TouchEvent) => {
+      if (!pinching || event.touches.length !== 2) {
+        return;
+      }
+      event.preventDefault();
+      const distance = touchDistance(event.touches[0], event.touches[1]);
+      if (lastPinchDistance > 0) {
+        const rect = wrap.getBoundingClientRect();
+        const center = touchCenterPoint(
+          event.touches[0],
+          event.touches[1],
+          rect,
+        );
+        const scaleFactor = distance / lastPinchDistance;
+        applyZoom(userZoomScaleRef.current * scaleFactor, center);
+      }
+      lastPinchDistance = distance;
+    };
+
+    const endPinch = () => {
+      if (pinching) {
+        pinching = false;
+        lastPinchDistance = 0;
+        canvas.calcOffset();
+        canvas.requestRenderAll();
+      }
+    };
+
+    wrap.addEventListener('touchstart', onTouchStart, { passive: true });
+    wrap.addEventListener('touchmove', onTouchMove, { passive: false });
+    wrap.addEventListener('touchend', endPinch);
+    wrap.addEventListener('touchcancel', endPinch);
+
+    return () => {
+      wrap.removeEventListener('touchstart', onTouchStart);
+      wrap.removeEventListener('touchmove', onTouchMove);
+      wrap.removeEventListener('touchend', endPinch);
+      wrap.removeEventListener('touchcancel', endPinch);
+    };
+  }, [loading, applyZoom]);
+
   const addText = () => {
     const canvas = fabricRef.current;
+    const wrap = wrapRef.current;
     if (!canvas || readOnly) return;
     const text = new IText('Escribe aquí…', {
-      left: 80,
-      top: 80,
       fontSize: 24,
       fill: '#333333',
       fontFamily: CANVAS_FONT_FAMILY,
       objectCaching: false,
     });
     canvas.add(text);
+    placeObjectAtVisibleCenter(text, canvas, wrap);
     canvas.setActiveObject(text);
     canvas.renderAll();
   };
 
   const addRect = () => {
     const canvas = fabricRef.current;
+    const wrap = wrapRef.current;
     if (!canvas || readOnly) return;
     const rect = new Rect({
-      left: 120,
-      top: 120,
       width: 160,
       height: 100,
       fill: '#e8f4fc',
@@ -486,22 +649,23 @@ export function FabricMoodboardEditor({
       strokeWidth: 2,
     });
     canvas.add(rect);
+    placeObjectAtVisibleCenter(rect, canvas, wrap);
     canvas.setActiveObject(rect);
     canvas.renderAll();
   };
 
   const addCircle = () => {
     const canvas = fabricRef.current;
+    const wrap = wrapRef.current;
     if (!canvas || readOnly) return;
     const circle = new Circle({
-      left: 200,
-      top: 200,
       radius: 50,
       fill: '#fce8e8',
       stroke: '#d94a4a',
       strokeWidth: 2,
     });
     canvas.add(circle);
+    placeObjectAtVisibleCenter(circle, canvas, wrap);
     canvas.setActiveObject(circle);
     canvas.renderAll();
   };
@@ -527,6 +691,7 @@ export function FabricMoodboardEditor({
 
   const handleImageUpload = async (file: File) => {
     const canvas = fabricRef.current;
+    const wrap = wrapRef.current;
     if (!canvas || readOnly) return;
     setBusy(true);
     setMessage(null);
@@ -536,8 +701,6 @@ export function FabricMoodboardEditor({
       trackBlobUrl(blob);
       const img = await FabricImage.fromURL(blob);
       img.set({
-        left: 100,
-        top: 100,
         scaleX: 0.5,
         scaleY: 0.5,
       });
@@ -545,6 +708,7 @@ export function FabricMoodboardEditor({
       img.set(EDIARY_MEDIA_OWNER, ownerUsername);
       img.set(EDIARY_MOODBOARD_ID, moodboardId);
       canvas.add(img);
+      placeObjectAtVisibleCenter(img, canvas, wrap);
       canvas.setActiveObject(img);
       canvas.renderAll();
     } catch (err) {
@@ -626,7 +790,12 @@ export function FabricMoodboardEditor({
         >
           Ajustar
         </button>
-        <span className="fabric-zoom-hint">Rueda del ratón · Ctrl + arrastrar para mover</span>
+        <span className="fabric-zoom-hint fabric-zoom-hint--desktop">
+          Rueda del ratón · Ctrl + arrastrar para mover
+        </span>
+        <span className="fabric-zoom-hint fabric-zoom-hint--mobile">
+          Pellizca para zoom · Arrastra el fondo para mover
+        </span>
       </div>
       {loading && <p className="fabric-status">Cargando lienzo…</p>}
       {message && <p className="fabric-status">{message}</p>}

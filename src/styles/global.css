@@ -321,5 +321,10 @@ footer .logo {
   .botones-encabezado {
     justify-content: center;
     margin-right: 0;
+    flex-wrap: wrap;
+  }
+
+  .form-container {
+    padding: 1.5rem;
   }
 }

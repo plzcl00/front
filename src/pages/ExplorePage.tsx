@@ -1,17 +1,19 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { getLikedMoodboards, listPublicMoodboards } from '../api/moodboards';
+import {
+  getLikedMoodboards,
+  listPublicMoodboards,
+  MOODBOARD_PAGE_SIZE,
+} from '../api/moodboards';
 import { useSession } from '../auth/useSession';
 import { AppShell } from '../components/AppShell';
-import { FeedCardThumbnail } from '../components/FeedCardThumbnail';
+import { MoodboardCardThumbnail } from '../components/MoodboardCardThumbnail';
 import { MoodboardLikeButton } from '../components/MoodboardLikeButton';
 import { moodboardDisplayName } from '../lib/moodboardDisplay';
 import { matchesMoodboardSearch, useSearch } from '../search/SearchContext';
 import type { PublicMoodboardFeedItem } from '../types/api';
 import './Dashboard.css';
 import './ExplorePage.css';
-
-const PAGE_SIZE = 24;
 
 function likedBoardKey(ownerUsername: string, moodboardId: number): string {
   return `${ownerUsername}-${moodboardId}`;
@@ -37,7 +39,7 @@ export function ExplorePage() {
     }
     setError(null);
     try {
-      const result = await listPublicMoodboards(pageIndex, PAGE_SIZE);
+      const result = await listPublicMoodboards(pageIndex, MOODBOARD_PAGE_SIZE);
       setPage(result.page);
       setHasNext(result.hasNext);
       setTotalItems(result.totalItems);
@@ -129,10 +131,11 @@ export function ExplorePage() {
                 to={`/u/${board.ownerUsername}/moodboards/${board.id}`}
                 className="dashboard-card-link"
               >
-                <FeedCardThumbnail
+                <MoodboardCardThumbnail
                   ownerUsername={board.ownerUsername}
                   moodboardId={board.id}
                   hasThumbnail={board.hasThumbnail}
+                  content={board.content}
                 />
                 <div className="dashboard-card-body">
                   <p className="explore-card-owner">@{board.ownerUsername}</p>

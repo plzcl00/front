@@ -28,6 +28,42 @@ const MIN_ZOOM = 0.25;
 const MAX_ZOOM = 4;
 const ZOOM_FACTOR = 1.2;
 
+const DEFAULT_CANVAS_BG = '#ffffff';
+const DEFAULT_TEXT_FILL = '#333333';
+const DEFAULT_SHAPE_FILL = '#e8f4fc';
+const DEFAULT_SHAPE_STROKE = '#4a90d9';
+
+function readColorValue(value: unknown, fallback: string): string {
+  return typeof value === 'string' ? value : fallback;
+}
+
+function isTextObject(obj: FabricObject): boolean {
+  return obj.type === 'i-text' || obj.type === 'textbox' || obj.type === 'text';
+}
+
+function isShapeObject(obj: FabricObject): boolean {
+  return obj.type === 'rect' || obj.type === 'circle';
+}
+
+function objectSupportsFill(obj: FabricObject): boolean {
+  return isTextObject(obj) || isShapeObject(obj);
+}
+
+function objectSupportsStroke(obj: FabricObject): boolean {
+  return isShapeObject(obj);
+}
+
+function getSelectedObjects(canvas: Canvas): FabricObject[] {
+  const active = canvas.getActiveObject();
+  if (!active) {
+    return [];
+  }
+  if (active.type === 'activeselection' && 'getObjects' in active) {
+    return (active as FabricObject & { getObjects(): FabricObject[] }).getObjects();
+  }
+  return [active];
+}
+
 function touchDistance(t1: Touch, t2: Touch): number {
   return Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
 }
@@ -147,6 +183,119 @@ export function FabricMoodboardEditor({
   const userZoomScaleRef = useRef(1);
   const layoutStateRef = useRef({ width: 0, absoluteZoom: 0 });
   const lastZoomPercentRef = useRef(100);
+  const defaultTextFillRef = useRef(DEFAULT_TEXT_FILL);
+  const defaultShapeFillRef = useRef(DEFAULT_SHAPE_FILL);
+  const defaultShapeStrokeRef = useRef(DEFAULT_SHAPE_STROKE);
+
+  const initialBg =
+    initialContent.canvas?.background ?? DEFAULT_CANVAS_BG;
+  const [backgroundColor, setBackgroundColor] = useState(initialBg);
+  const [fillColor, setFillColor] = useState(DEFAULT_SHAPE_FILL);
+  const [strokeColor, setStrokeColor] = useState(DEFAULT_SHAPE_STROKE);
+  const [fillControlEnabled, setFillControlEnabled] = useState(true);
+  const [strokeControlEnabled, setStrokeControlEnabled] = useState(true);
+
+  const syncColorControlsFromCanvas = useCallback(() => {
+    const canvas = fabricRef.current;
+    if (!canvas) {
+      return;
+    }
+
+    setBackgroundColor(
+      readColorValue(canvas.backgroundColor, DEFAULT_CANVAS_BG),
+    );
+
+    const selected = getSelectedObjects(canvas);
+    if (selected.length === 0) {
+      setFillColor(defaultShapeFillRef.current);
+      setStrokeColor(defaultShapeStrokeRef.current);
+      setFillControlEnabled(true);
+      setStrokeControlEnabled(true);
+      return;
+    }
+
+    const hasImage = selected.some((obj) => obj.type === 'image');
+    const fillable = selected.filter(objectSupportsFill);
+    const strokeable = selected.filter(objectSupportsStroke);
+
+    setFillControlEnabled(!hasImage && fillable.length > 0);
+    setStrokeControlEnabled(!hasImage && strokeable.length > 0);
+
+    if (fillable.length > 0) {
+      setFillColor(readColorValue(fillable[0].get('fill'), defaultShapeFillRef.current));
+    }
+    if (strokeable.length > 0) {
+      setStrokeColor(
+        readColorValue(strokeable[0].get('stroke'), defaultShapeStrokeRef.current),
+      );
+    }
+  }, []);
+
+  const applyCanvasBackground = useCallback((color: string) => {
+    const canvas = fabricRef.current;
+    if (!canvas) {
+      return;
+    }
+    canvas.backgroundColor = color;
+    canvas.requestRenderAll();
+  }, []);
+
+  const handleBackgroundColorChange = useCallback(
+    (color: string) => {
+      setBackgroundColor(color);
+      applyCanvasBackground(color);
+    },
+    [applyCanvasBackground],
+  );
+
+  const handleFillColorChange = useCallback((color: string) => {
+    setFillColor(color);
+    const canvas = fabricRef.current;
+    if (!canvas) {
+      defaultShapeFillRef.current = color;
+      defaultTextFillRef.current = color;
+      return;
+    }
+
+    const selected = getSelectedObjects(canvas).filter(objectSupportsFill);
+    if (selected.length === 0) {
+      defaultShapeFillRef.current = color;
+      defaultTextFillRef.current = color;
+      return;
+    }
+
+    for (const obj of selected) {
+      obj.set('fill', color);
+      if (isTextObject(obj)) {
+        defaultTextFillRef.current = color;
+      }
+      if (isShapeObject(obj)) {
+        defaultShapeFillRef.current = color;
+      }
+    }
+    canvas.requestRenderAll();
+  }, []);
+
+  const handleStrokeColorChange = useCallback((color: string) => {
+    setStrokeColor(color);
+    const canvas = fabricRef.current;
+    if (!canvas) {
+      defaultShapeStrokeRef.current = color;
+      return;
+    }
+
+    const selected = getSelectedObjects(canvas).filter(objectSupportsStroke);
+    if (selected.length === 0) {
+      defaultShapeStrokeRef.current = color;
+      return;
+    }
+
+    for (const obj of selected) {
+      obj.set('stroke', color);
+    }
+    defaultShapeStrokeRef.current = color;
+    canvas.requestRenderAll();
+  }, []);
 
   const persistCanvas = useCallback(async (): Promise<MoodboardContent> => {
     const canvas = fabricRef.current;
@@ -379,6 +528,28 @@ export function FabricMoodboardEditor({
       revokeAllBlobUrls();
     };
   }, [ownerUsername, moodboardId, readOnly, syncCanvasLayout]);
+
+  useEffect(() => {
+    const canvas = fabricRef.current;
+    if (!canvas || loading || readOnly) {
+      return;
+    }
+
+    const onSelectionChange = () => {
+      syncColorControlsFromCanvas();
+    };
+
+    canvas.on('selection:created', onSelectionChange);
+    canvas.on('selection:updated', onSelectionChange);
+    canvas.on('selection:cleared', onSelectionChange);
+    syncColorControlsFromCanvas();
+
+    return () => {
+      canvas.off('selection:created', onSelectionChange);
+      canvas.off('selection:updated', onSelectionChange);
+      canvas.off('selection:cleared', onSelectionChange);
+    };
+  }, [loading, readOnly, syncColorControlsFromCanvas]);
 
   useEffect(() => {
     if (loading) {
@@ -627,7 +798,7 @@ export function FabricMoodboardEditor({
     if (!canvas || readOnly) return;
     const text = new IText('Escribe aquí…', {
       fontSize: 24,
-      fill: '#333333',
+      fill: defaultTextFillRef.current,
       fontFamily: CANVAS_FONT_FAMILY,
       objectCaching: false,
     });
@@ -644,8 +815,8 @@ export function FabricMoodboardEditor({
     const rect = new Rect({
       width: 160,
       height: 100,
-      fill: '#e8f4fc',
-      stroke: '#4a90d9',
+      fill: defaultShapeFillRef.current,
+      stroke: defaultShapeStrokeRef.current,
       strokeWidth: 2,
     });
     canvas.add(rect);
@@ -660,8 +831,8 @@ export function FabricMoodboardEditor({
     if (!canvas || readOnly) return;
     const circle = new Circle({
       radius: 50,
-      fill: '#fce8e8',
-      stroke: '#d94a4a',
+      fill: defaultShapeFillRef.current,
+      stroke: defaultShapeStrokeRef.current,
       strokeWidth: 2,
     });
     canvas.add(circle);
@@ -758,6 +929,38 @@ export function FabricMoodboardEditor({
               e.target.value = '';
             }}
           />
+          <div className="fabric-color-controls">
+            <label className="fabric-color-label">
+              Fondo
+              <input
+                type="color"
+                className="fabric-color-input"
+                value={backgroundColor}
+                disabled={loading || busy}
+                onChange={(e) => handleBackgroundColorChange(e.target.value)}
+              />
+            </label>
+            <label className="fabric-color-label">
+              Relleno
+              <input
+                type="color"
+                className="fabric-color-input"
+                value={fillColor}
+                disabled={loading || busy || !fillControlEnabled}
+                onChange={(e) => handleFillColorChange(e.target.value)}
+              />
+            </label>
+            <label className="fabric-color-label">
+              Borde
+              <input
+                type="color"
+                className="fabric-color-input"
+                value={strokeColor}
+                disabled={loading || busy || !strokeControlEnabled}
+                onChange={(e) => handleStrokeColorChange(e.target.value)}
+              />
+            </label>
+          </div>
         </div>
       )}
       <div className="fabric-zoom-bar">

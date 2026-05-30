@@ -4,8 +4,12 @@ import type {
   Moodboard,
   MoodboardContent,
   MoodboardCreateRequest,
+  MoodboardsPage,
+  PublicMoodboardFeedItem,
   PublicMoodboardsPage,
 } from '../types/api';
+
+export const MOODBOARD_PAGE_SIZE = 24;
 import { apiRequest, apiRequestBytes } from './client';
 
 function userPath(username: string): string {
@@ -27,11 +31,36 @@ function normalizeList(raw: (Moodboard & { public?: boolean })[]): Moodboard[] {
   return raw.map(normalizeMoodboard);
 }
 
+function normalizePublicFeedItem(
+  raw: PublicMoodboardFeedItem,
+): PublicMoodboardFeedItem {
+  return {
+    ...raw,
+    name: raw.name?.trim() || 'Sin título',
+    hasThumbnail: raw.hasThumbnail ?? false,
+    likeCount: raw.likeCount ?? 0,
+  };
+}
+
 export async function listMoodboards(username: string): Promise<Moodboard[]> {
   const raw = await apiRequest<(Moodboard & { public?: boolean })[]>(
     `${userPath(username)}/moodboards`,
   );
   return normalizeList(raw);
+}
+
+export async function listMoodboardsPage(
+  username: string,
+  page = 0,
+  size = MOODBOARD_PAGE_SIZE,
+): Promise<MoodboardsPage> {
+  const result = await apiRequest<
+    MoodboardsPage & { items: (Moodboard & { public?: boolean })[] }
+  >(`${userPath(username)}/moodboards?page=${page}&size=${size}`);
+  return {
+    ...result,
+    items: normalizeList(result.items),
+  };
 }
 
 export async function getMoodboard(
@@ -254,9 +283,13 @@ export function uploadThumbnail(
 
 export async function listPublicMoodboards(
   page = 0,
-  size = 24,
+  size = MOODBOARD_PAGE_SIZE,
 ): Promise<PublicMoodboardsPage> {
-  return apiRequest<PublicMoodboardsPage>(
+  const result = await apiRequest<PublicMoodboardsPage>(
     `/public/moodboards?page=${page}&size=${size}`,
   );
+  return {
+    ...result,
+    items: result.items.map(normalizePublicFeedItem),
+  };
 }

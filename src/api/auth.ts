@@ -1,4 +1,4 @@
-import type { LoginRequest, LoginResponse } from '../types/api';
+import type { ChangePasswordRequest, LoginRequest, LoginResponse } from '../types/api';
 import { apiRequest } from './client';
 
 export function register(body: LoginRequest): Promise<LoginResponse> {
@@ -19,4 +19,14 @@ export function login(body: LoginRequest): Promise<LoginResponse> {
 
 export function logout(): Promise<void> {
   return apiRequest<void>('/auth/logout', { method: 'POST' });
+}
+
+export function changePassword(
+  username: string,
+  body: ChangePasswordRequest,
+): Promise<void> {
+  return apiRequest<void>(`/${encodeURIComponent(username)}/profile/password`, {
+    method: 'PATCH',
+    body,
+  });
 }

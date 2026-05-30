@@ -1,0 +1,59 @@
+.metricas-page {
+  padding: 1.5rem;
+}
+
+.metricas-toolbar {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.metricas-period-btn {
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: #fff;
+  border-radius: 999px;
+  padding: 0.45rem 1rem;
+  cursor: pointer;
+}
+
+.metricas-period-btn.is-active {
+  background: var(--color-primary, #6b4ce6);
+  color: #fff;
+  border-color: transparent;
+}
+
+.metricas-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.metricas-stat {
+  background: rgba(107, 76, 230, 0.06);
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.metricas-stat-label {
+  font-size: 0.85rem;
+  color: var(--color-text-muted, #666);
+}
+
+.metricas-stat-value {
+  font-size: 1.5rem;
+}
+
+.metricas-chart {
+  width: 100%;
+  min-height: 280px;
+}
+
+.metricas-empty,
+.metricas-status {
+  color: var(--color-text-muted, #666);
+}

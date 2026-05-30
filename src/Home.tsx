@@ -40,17 +40,28 @@ export function Home() {
         <section className="bienvenida">
           <h1>Conócete a ti mismo.</h1>
           <p>
-            Próximamente: quiz diarios y métricas para comprenderte mejor.
+            Registra tu estado de ánimo en el diario, completa el quiz diario y
+            consulta tus métricas para comprenderte mejor.
           </p>
           <div className="section-visual">
             <img className="imagen-muestra1" src={imagenMuestra} alt="Métricas" />
           </div>
+          {isAuthenticated && (
+            <div className="home-feature-links">
+              <Link to="/app/diario" className="btn-registro-form">
+                Ir al diario
+              </Link>
+              <Link to="/app/metricas" className="btn-inicio-sesion">
+                Ver métricas
+              </Link>
+            </div>
+          )}
           <hr />
         </section>
 
         <section className="bienvenida">
           <h1>Organiza tu agenda.</h1>
-          <p>Próximamente: calendario y recordatorios integrados.</p>
+          <p>Añade recordatorios a tus entradas del diario desde el calendario.</p>
           <div className="section-visual">
             <img className="imagen-muestra1" src={imagenMuestra} alt="Calendario" />
           </div>

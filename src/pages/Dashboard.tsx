@@ -8,14 +8,21 @@ import {
   listMoodboards,
   setVisibility,
 } from '../api/moodboards';
+import { getDiaryEntry } from '../api/diary';
 import { createEmptyMoodboardContent } from '../lib/moodboardContent';
 import { moodboardDisplayName } from '../lib/moodboardDisplay';
 import type { LikedMoodboardSummary, Moodboard } from '../types/api';
 import { AppShell } from '../components/AppShell';
 import { ConfirmDialog } from '../components/ConfirmDialog';
+import { QuizPrompt } from '../components/QuizPrompt';
 import { matchesMoodboardSearch, useSearch } from '../search/SearchContext';
 import { MoodboardCardThumbnail } from '../components/MoodboardCardThumbnail';
 import './Dashboard.css';
+
+function todayIso(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
 
 export function Dashboard() {
   const { username } = useSession();
@@ -28,17 +35,20 @@ export function Dashboard() {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<number | null>(null);
+  const [todayDiaryFilled, setTodayDiaryFilled] = useState<boolean | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const [list, liked] = await Promise.all([
+      const [list, liked, todayEntry] = await Promise.all([
         listMoodboards(username),
         getLikedMoodboards(username),
+        getDiaryEntry(username, todayIso()),
       ]);
       setBoards(list);
       setLikedBoards(liked);
+      setTodayDiaryFilled(todayEntry !== null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudieron cargar los moodboards');
     } finally {
@@ -95,6 +105,7 @@ export function Dashboard() {
 
   return (
     <AppShell title="Mis moodboards">
+      <QuizPrompt username={username} onComplete={() => void load()} />
       <div className="dashboard">
         <div className="dashboard-main card card--elevated">
           <div className="dashboard-header">
@@ -169,7 +180,23 @@ export function Dashboard() {
         </div>
 
         <aside className="dashboard-sidebar card card--elevated">
-          <h2 className="dashboard-sidebar-title">Mis favoritos</h2>
+          <h2 className="dashboard-sidebar-title">Entrada de hoy</h2>
+          {todayDiaryFilled === null ? (
+            <p className="dashboard-sidebar-empty">Comprobando diario…</p>
+          ) : todayDiaryFilled ? (
+            <p className="dashboard-diary-status dashboard-diary-status--done">
+              Ya has escrito en tu diario hoy.
+            </p>
+          ) : (
+            <p className="dashboard-diary-status">
+              Aún no has registrado cómo te sientes hoy.
+            </p>
+          )}
+          <Link to="/app/diario" className="dashboard-diary-link">
+            {todayDiaryFilled ? 'Ver diario' : 'Escribir en el diario'}
+          </Link>
+
+          <h2 className="dashboard-sidebar-title dashboard-sidebar-title--spaced">Mis favoritos</h2>
           {likedBoards.length === 0 ? (
             <p className="dashboard-sidebar-empty">No has marcado moodboards con me gusta.</p>
           ) : filteredLikedBoards.length === 0 && hasSearch ? (

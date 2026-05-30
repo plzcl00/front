@@ -5,6 +5,8 @@ import iconGrid from '../assets/icons/layout-grid.svg';
 import iconEye from '../assets/icons/eye.svg';
 import iconHeart from '../assets/icons/heart.svg';
 import iconSettings from '../assets/icons/settings.svg';
+import iconCalendar from '../assets/icons/calendar.svg';
+import iconGraphics from '../assets/icons/graphics.svg';
 import iconSearch from '../assets/icons/search.svg';
 import logo from '../assets/Ediary.png';
 import './AppShell.css';
@@ -40,6 +42,16 @@ const navItems: NavItem[] = [
     to: '/app/favoritos',
     label: 'Favoritos',
     icon: iconHeart,
+  },
+  {
+    to: '/app/diario',
+    label: 'Diario',
+    icon: iconCalendar,
+  },
+  {
+    to: '/app/metricas',
+    label: 'Métricas',
+    icon: iconGraphics,
   },
   {
     to: '/app/ajustes',

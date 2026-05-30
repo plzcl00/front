@@ -84,3 +84,52 @@ export interface PublicMoodboardsPage {
   totalPages: number;
   hasNext: boolean;
 }
+
+export interface DiaryEntry {
+  id: number;
+  ownerUsername: string;
+  entryDate: string;
+  moodScore: number;
+  textNote?: string | null;
+  linkedMoodboardId?: number | null;
+  reminderAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DiaryEntryRequest {
+  entryDate: string;
+  moodScore: number;
+  textNote?: string | null;
+  linkedMoodboardId?: number | null;
+  reminderAt?: string | null;
+}
+
+export interface MetricsResponse {
+  period: string;
+  averageMood: number;
+  entryStreak: number;
+  totalEntries: number;
+  trend: { date: string; moodScore: number }[];
+}
+
+export interface QuizTemplate {
+  id: number;
+  question: string;
+  type: 'scale' | 'choice';
+  options: string[];
+}
+
+export interface QuizTodayResponse {
+  questions: QuizTemplate[];
+  completedToday: boolean;
+}
+
+export interface QuizResponseRequest {
+  answers: Record<string, string>;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+}

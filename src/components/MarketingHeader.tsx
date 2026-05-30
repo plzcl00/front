@@ -1,6 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
 import logo from '../assets/Ediary.png';
-import languageIcon from '../assets/icons/language.svg';
 import { useAuth } from '../auth/AuthContext';
 
 export function MarketingHeader() {
@@ -29,10 +28,6 @@ export function MarketingHeader() {
           </>
         ) : (
           <>
-            <button type="button" className="btn-idioma" aria-label="Idioma">
-              <img src={languageIcon} alt="" />
-              Idioma
-            </button>
             <Link to="/sign-up" className="btn-registro">
               Registrarse
             </Link>

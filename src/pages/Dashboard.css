@@ -159,6 +159,26 @@
   text-align: left;
 }
 
+.dashboard-sidebar-title--spaced {
+  margin-top: 1.5rem;
+}
+
+.dashboard-diary-status {
+  font-size: 0.9rem;
+  text-align: left;
+  margin: 0 0 0.75rem;
+}
+
+.dashboard-diary-status--done {
+  color: #2e7d32;
+}
+
+.dashboard-diary-link {
+  display: inline-block;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
 .dashboard-sidebar-empty {
   font-size: 0.9rem;
   text-align: left;

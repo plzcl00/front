@@ -13,6 +13,8 @@ import { ExplorePage } from './pages/ExplorePage';
 import { SettingsPage } from './pages/SettingsPage';
 import { NewMoodboardPage } from './pages/NewMoodboardPage';
 import { LegalStubPage } from './pages/LegalStubPage';
+import { DiarioPage } from './pages/DiarioPage';
+import { MetricasPage } from './pages/MetricasPage';
 import './App.css';
 
 export function App() {
@@ -47,6 +49,22 @@ export function App() {
             element={
               <ProtectedRoute>
                 <FavoritesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/app/diario"
+            element={
+              <ProtectedRoute>
+                <DiarioPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/app/metricas"
+            element={
+              <ProtectedRoute>
+                <MetricasPage />
               </ProtectedRoute>
             }
           />

@@ -1,4 +1,4 @@
-import { Canvas, Circle, FabricImage, IText, Rect } from 'fabric';
+import { Canvas, Circle, FabricImage, IText, Point, Rect } from 'fabric';
 import { useCallback, useEffect, useRef, useState, type MutableRefObject } from 'react';
 import type { MoodboardContent } from '../types/api';
 import { uploadMedia, deleteMedia } from '../api/moodboards';
@@ -24,6 +24,14 @@ import iconCircle from '../assets/icons/circle.svg';
 import iconImage from '../assets/icons/image-add.svg';
 import './FabricMoodboardEditor.css';
 
+const MIN_ZOOM = 0.25;
+const MAX_ZOOM = 4;
+const ZOOM_FACTOR = 1.2;
+
+function clampUserZoom(scale: number): number {
+  return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, scale));
+}
+
 interface FabricMoodboardEditorProps {
   ownerUsername: string;
   moodboardId: number;
@@ -43,13 +51,15 @@ function applyReadOnly(canvas: Canvas) {
   }
 }
 
-function tuneTextObjects(canvas: Canvas) {
+function tuneRenderedObjects(canvas: Canvas) {
   for (const obj of canvas.getObjects()) {
     if (obj.type === 'i-text' || obj.type === 'textbox' || obj.type === 'text') {
       obj.set({
         fontFamily: CANVAS_FONT_FAMILY,
         objectCaching: false,
       });
+    } else {
+      obj.set({ objectCaching: false });
     }
   }
 }
@@ -76,6 +86,7 @@ export function FabricMoodboardEditor({
   exportThumbnailRef,
 }: FabricMoodboardEditorProps) {
   const canvasElRef = useRef<HTMLCanvasElement>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
   const fabricRef = useRef<Canvas | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const initialAssetIds = useRef<number[]>([]);
@@ -83,6 +94,10 @@ export function FabricMoodboardEditor({
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [zoomPercent, setZoomPercent] = useState(100);
+  const controlPressedRef = useRef(false);
+  const baseFitZoomRef = useRef(1);
+  const userZoomScaleRef = useRef(1);
 
   const persistCanvas = useCallback(async (): Promise<MoodboardContent> => {
     const canvas = fabricRef.current;
@@ -135,6 +150,74 @@ export function FabricMoodboardEditor({
     return dataUrlToBlob(dataUrl);
   }, []);
 
+  const syncCanvasLayout = useCallback((resetPan = false) => {
+    const wrap = wrapRef.current;
+    const canvas = fabricRef.current;
+    if (!wrap || !canvas) {
+      return;
+    }
+
+    const logicalWidth = canvas.getWidth();
+    const logicalHeight = canvas.getHeight();
+    const availableWidth = Math.floor(wrap.clientWidth);
+
+    if (availableWidth <= 0 || logicalWidth <= 0) {
+      return;
+    }
+
+    canvas.setDimensions({ width: logicalWidth, height: logicalHeight });
+
+    baseFitZoomRef.current = availableWidth / logicalWidth;
+    const absoluteZoom =
+      baseFitZoomRef.current * clampUserZoom(userZoomScaleRef.current);
+
+    const vpt = canvas.viewportTransform ?? [1, 0, 0, 1, 0, 0];
+    const panX = resetPan ? 0 : vpt[4];
+    const panY = resetPan ? 0 : vpt[5];
+
+    canvas.setViewportTransform([absoluteZoom, 0, 0, absoluteZoom, panX, panY]);
+    setZoomPercent(Math.round(userZoomScaleRef.current * 100));
+    canvas.calcOffset();
+    canvas.requestRenderAll();
+  }, []);
+
+  const getZoomCenter = useCallback((): Point => {
+    const wrap = wrapRef.current;
+    if (!wrap) {
+      return new Point(0, 0);
+    }
+    return new Point(wrap.clientWidth / 2, wrap.clientHeight / 2);
+  }, []);
+
+  const applyZoom = useCallback(
+    (nextUserScale: number, point?: Point) => {
+      const canvas = fabricRef.current;
+      if (!canvas) {
+        return;
+      }
+      userZoomScaleRef.current = clampUserZoom(nextUserScale);
+      const absoluteZoom =
+        baseFitZoomRef.current * userZoomScaleRef.current;
+      canvas.zoomToPoint(point ?? getZoomCenter(), absoluteZoom);
+      canvas.requestRenderAll();
+      setZoomPercent(Math.round(userZoomScaleRef.current * 100));
+    },
+    [getZoomCenter],
+  );
+
+  const zoomIn = useCallback(() => {
+    applyZoom(userZoomScaleRef.current * ZOOM_FACTOR);
+  }, [applyZoom]);
+
+  const zoomOut = useCallback(() => {
+    applyZoom(userZoomScaleRef.current / ZOOM_FACTOR);
+  }, [applyZoom]);
+
+  const resetZoom = useCallback(() => {
+    userZoomScaleRef.current = 1;
+    syncCanvasLayout(true);
+  }, [syncCanvasLayout]);
+
   useEffect(() => {
     if (saveRef) {
       saveRef.current = saveCanvas;
@@ -173,8 +256,10 @@ export function FabricMoodboardEditor({
       backgroundColor: initialContentRef.current.canvas?.background ?? '#ffffff',
       selection: !readOnly,
       enableRetinaScaling: true,
+      containerClass: 'canvas-container',
     });
     fabricRef.current = canvas;
+    userZoomScaleRef.current = 1;
 
     const rawJson = extractFabricJson(initialContentRef.current);
     initialAssetIds.current = rawJson ? collectAssetIds(rawJson) : [];
@@ -189,14 +274,16 @@ export function FabricMoodboardEditor({
           );
           if (!cancelled) {
             await canvas.loadFromJSON(hydrated);
-            tuneTextObjects(canvas);
+            tuneRenderedObjects(canvas);
             if (readOnly) {
               applyReadOnly(canvas);
             }
             canvas.renderAll();
+            syncCanvasLayout();
           }
         } else if (readOnly) {
           applyReadOnly(canvas);
+          syncCanvasLayout();
         }
       } catch (err) {
         if (!cancelled) {
@@ -206,6 +293,7 @@ export function FabricMoodboardEditor({
         }
       } finally {
         if (!cancelled) {
+          syncCanvasLayout();
           setLoading(false);
         }
       }
@@ -217,7 +305,153 @@ export function FabricMoodboardEditor({
       fabricRef.current = null;
       revokeAllBlobUrls();
     };
-  }, [ownerUsername, moodboardId, readOnly]);
+  }, [ownerUsername, moodboardId, readOnly, syncCanvasLayout]);
+
+  useEffect(() => {
+    if (loading) {
+      return;
+    }
+
+    syncCanvasLayout();
+    const wrap = wrapRef.current;
+    const parent = wrap?.parentElement;
+    if (!parent) {
+      return;
+    }
+
+    const observer = new ResizeObserver(() => {
+      syncCanvasLayout(false);
+    });
+    observer.observe(parent);
+    return () => observer.disconnect();
+  }, [loading, syncCanvasLayout]);
+
+  useEffect(() => {
+    const wrap = wrapRef.current;
+    const canvas = fabricRef.current;
+    if (!wrap || !canvas || loading) {
+      return;
+    }
+
+    const onWheel = (event: WheelEvent) => {
+      event.preventDefault();
+      const rect = wrap.getBoundingClientRect();
+      const point = new Point(
+        event.clientX - rect.left,
+        event.clientY - rect.top,
+      );
+      const nextUserScale =
+        userZoomScaleRef.current * 0.999 ** event.deltaY;
+      applyZoom(nextUserScale, point);
+    };
+
+    wrap.addEventListener('wheel', onWheel, { passive: false });
+    return () => wrap.removeEventListener('wheel', onWheel);
+  }, [loading, applyZoom]);
+
+  useEffect(() => {
+    const wrap = wrapRef.current;
+    const canvas = fabricRef.current;
+    if (!wrap || !canvas || loading) {
+      return;
+    }
+
+    let panning = false;
+    let lastX = 0;
+    let lastY = 0;
+
+    const isEditingText = () => {
+      const active = canvas.getActiveObject();
+      return (
+        active != null &&
+        'isEditing' in active &&
+        Boolean((active as IText).isEditing)
+      );
+    };
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (
+        (event.code !== 'ControlLeft' && event.code !== 'ControlRight') ||
+        event.repeat ||
+        isEditingText()
+      ) {
+        return;
+      }
+      const target = event.target;
+      if (
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement
+      ) {
+        return;
+      }
+      controlPressedRef.current = true;
+      wrap.classList.add('fabric-canvas-wrap--pan');
+    };
+
+    const onKeyUp = (event: KeyboardEvent) => {
+      if (event.code !== 'ControlLeft' && event.code !== 'ControlRight') {
+        return;
+      }
+      controlPressedRef.current = false;
+      panning = false;
+      wrap.classList.remove('fabric-canvas-wrap--pan');
+    };
+
+    const onMouseDown = (opt: { e: globalThis.TouchEvent | MouseEvent }) => {
+      if (!controlPressedRef.current) {
+        return;
+      }
+      if (!('clientX' in opt.e)) {
+        return;
+      }
+      panning = true;
+      canvas.selection = false;
+      canvas.discardActiveObject();
+      lastX = opt.e.clientX;
+      lastY = opt.e.clientY;
+    };
+
+    const onMouseMove = (opt: { e: globalThis.TouchEvent | MouseEvent }) => {
+      if (!panning || !controlPressedRef.current) {
+        return;
+      }
+      if (!('clientX' in opt.e)) {
+        return;
+      }
+      const vpt = canvas.viewportTransform;
+      if (!vpt) {
+        return;
+      }
+      vpt[4] += opt.e.clientX - lastX;
+      vpt[5] += opt.e.clientY - lastY;
+      lastX = opt.e.clientX;
+      lastY = opt.e.clientY;
+      canvas.setViewportTransform(vpt);
+      canvas.requestRenderAll();
+    };
+
+    const onMouseUp = () => {
+      if (panning) {
+        canvas.selection = !readOnly;
+      }
+      panning = false;
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keyup', onKeyUp);
+    canvas.on('mouse:down', onMouseDown);
+    canvas.on('mouse:move', onMouseMove);
+    canvas.on('mouse:up', onMouseUp);
+
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('keyup', onKeyUp);
+      canvas.off('mouse:down', onMouseDown);
+      canvas.off('mouse:move', onMouseMove);
+      canvas.off('mouse:up', onMouseUp);
+      wrap.classList.remove('fabric-canvas-wrap--pan');
+    };
+  }, [loading, readOnly]);
 
   const addText = () => {
     const canvas = fabricRef.current;
@@ -358,9 +592,41 @@ export function FabricMoodboardEditor({
           />
         </div>
       )}
+      <div className="fabric-zoom-bar">
+        <button
+          type="button"
+          className="fabric-zoom-btn"
+          onClick={zoomOut}
+          disabled={loading || zoomPercent <= MIN_ZOOM * 100}
+          title="Alejar"
+          aria-label="Alejar"
+        >
+          −
+        </button>
+        <span className="fabric-zoom-label">{zoomPercent}%</span>
+        <button
+          type="button"
+          className="fabric-zoom-btn"
+          onClick={zoomIn}
+          disabled={loading || zoomPercent >= MAX_ZOOM * 100}
+          title="Acercar"
+          aria-label="Acercar"
+        >
+          +
+        </button>
+        <button
+          type="button"
+          className="fabric-zoom-reset"
+          onClick={resetZoom}
+          disabled={loading}
+        >
+          Ajustar
+        </button>
+        <span className="fabric-zoom-hint">Rueda del ratón · Ctrl + arrastrar para mover</span>
+      </div>
       {loading && <p className="fabric-status">Cargando lienzo…</p>}
       {message && <p className="fabric-status">{message}</p>}
-      <div className="fabric-canvas-wrap">
+      <div className="fabric-canvas-wrap" ref={wrapRef}>
         <canvas ref={canvasElRef} />
       </div>
     </div>

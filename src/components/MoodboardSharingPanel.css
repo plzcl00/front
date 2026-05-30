@@ -69,6 +69,10 @@
   font-family: inherit;
 }
 
+.sharing-grant-form .username-autocomplete input {
+  padding: 0.5rem;
+}
+
 .sharing-granted-list {
   list-style: none;
   padding: 0;

@@ -10,6 +10,7 @@ import {
   unlikeMoodboard,
 } from '../api/moodboards';
 import { useAuth } from '../auth/AuthContext';
+import { UsernameAutocomplete } from './UsernameAutocomplete';
 import './MoodboardSharingPanel.css';
 
 interface MoodboardSharingPanelProps {
@@ -25,6 +26,7 @@ export function MoodboardSharingPanel({
 }: MoodboardSharingPanelProps) {
   const { session } = useAuth();
   const [grantTo, setGrantTo] = useState('');
+  const [grantToValid, setGrantToValid] = useState(false);
   const [grantedUsers, setGrantedUsers] = useState<string[]>([]);
   const [likers, setLikers] = useState<string[]>([]);
   const [likeCount, setLikeCount] = useState(0);
@@ -68,15 +70,17 @@ export function MoodboardSharingPanel({
 
   const handleGrant = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!grantTo.trim()) return;
+    const username = grantTo.trim();
+    if (!username || !grantToValid) return;
     setBusy(true);
     setError(null);
     try {
-      await grantPermission(owner, id, grantTo.trim());
+      await grantPermission(owner, id, username);
       setGrantedUsers((prev) =>
-        prev.includes(grantTo.trim()) ? prev : [...prev, grantTo.trim()],
+        prev.includes(username) ? prev : [...prev, username],
       );
       setGrantTo('');
+      setGrantToValid(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error');
     } finally {
@@ -132,14 +136,16 @@ export function MoodboardSharingPanel({
 
           <form onSubmit={(e) => void handleGrant(e)} className="sharing-grant-form">
             <label htmlFor="grantTo">Dar acceso a usuario</label>
-            <input
+            <UsernameAutocomplete
               id="grantTo"
               value={grantTo}
-              onChange={(e) => setGrantTo(e.target.value)}
-              placeholder="nombre_usuario"
+              onChange={setGrantTo}
+              onValidUserChange={setGrantToValid}
+              exclude={[owner, currentUser, ...grantedUsers]}
               disabled={busy}
+              placeholder="nombre_usuario"
             />
-            <button type="submit" disabled={busy}>
+            <button type="submit" disabled={busy || !grantToValid}>
               Conceder
             </button>
           </form>

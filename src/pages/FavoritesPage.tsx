@@ -6,6 +6,7 @@ import { moodboardDisplayName } from '../lib/moodboardDisplay';
 import type { LikedMoodboardSummary } from '../types/api';
 import { AppShell } from '../components/AppShell';
 import { FeedCardThumbnail } from '../components/FeedCardThumbnail';
+import { MoodboardLikeButton } from '../components/MoodboardLikeButton';
 import { matchesMoodboardSearch, useSearch } from '../search/SearchContext';
 import './Dashboard.css';
 import './ExplorePage.css';
@@ -41,6 +42,28 @@ export function FavoritesPage() {
   );
   const hasSearch = query.trim().length > 0;
 
+  const handleFavoriteLikeChange = (
+    board: LikedMoodboardSummary,
+    next: { liked: boolean; likeCount: number },
+  ) => {
+    if (!next.liked) {
+      setLikedBoards((prev) =>
+        prev.filter(
+          (item) => !(item.ownerUsername === board.ownerUsername && item.id === board.id),
+        ),
+      );
+      return;
+    }
+
+    setLikedBoards((prev) =>
+      prev.map((item) =>
+        item.ownerUsername === board.ownerUsername && item.id === board.id
+          ? { ...item, likeCount: next.likeCount }
+          : item,
+      ),
+    );
+  };
+
   return (
     <AppShell title="Mis favoritos">
       <div className="favorites-page card card--elevated">
@@ -71,11 +94,19 @@ export function FavoritesPage() {
                 <div className="dashboard-card-body">
                   <p className="explore-card-owner">@{board.ownerUsername}</p>
                   <h2>{moodboardDisplayName(board)}</h2>
-                  <p className="dashboard-card-likes">
-                    Me gusta: {board.likeCount ?? 0}
-                  </p>
                 </div>
               </Link>
+              {board.ownerUsername !== username && (
+                <div className="explore-card-footer">
+                  <MoodboardLikeButton
+                    ownerUsername={board.ownerUsername}
+                    moodboardId={board.id}
+                    liked
+                    likeCount={board.likeCount ?? 0}
+                    onChange={(next) => handleFavoriteLikeChange(board, next)}
+                  />
+                </div>
+              )}
             </article>
           ))}
         </div>

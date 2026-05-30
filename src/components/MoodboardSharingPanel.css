@@ -97,6 +97,10 @@
   color: var(--ediary-error);
 }
 
+.sharing-like-row {
+  margin-bottom: 0.75rem;
+}
+
 .sharing-likers {
   font-size: 0.85rem;
   color: var(--ediary-text-muted);

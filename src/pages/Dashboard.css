@@ -101,12 +101,6 @@
   background-color: rgba(250, 128, 149, 0.35);
 }
 
-.dashboard-card-likes {
-  font-size: 0.85rem;
-  margin: 0.5rem 0;
-  text-align: left;
-}
-
 .dashboard-card-link {
   display: flex;
   flex-direction: column;

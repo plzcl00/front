@@ -8,7 +8,8 @@ interface MoodboardLikeButtonProps {
   moodboardId: number;
   liked: boolean;
   likeCount: number;
-  onChange: (next: { liked: boolean; likeCount: number }) => void;
+  readOnly?: boolean;
+  onChange?: (next: { liked: boolean; likeCount: number }) => void;
 }
 
 export function MoodboardLikeButton({
@@ -16,9 +17,23 @@ export function MoodboardLikeButton({
   moodboardId,
   liked,
   likeCount,
+  readOnly = false,
   onChange,
 }: MoodboardLikeButtonProps) {
   const [busy, setBusy] = useState(false);
+
+  const className = `moodboard-like-btn ${liked ? 'moodboard-like-btn--active' : ''} ${
+    readOnly ? 'moodboard-like-btn--readonly' : ''
+  }`.trim();
+
+  if (readOnly) {
+    return (
+      <span className={className} aria-label={`Me gusta: ${likeCount}`}>
+        <img src={iconHeart} alt="" draggable={false} />
+        <span>{likeCount}</span>
+      </span>
+    );
+  }
 
   const handleClick = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
@@ -31,10 +46,10 @@ export function MoodboardLikeButton({
     try {
       if (liked) {
         await unlikeMoodboard(ownerUsername, moodboardId);
-        onChange({ liked: false, likeCount: Math.max(0, likeCount - 1) });
+        onChange?.({ liked: false, likeCount: Math.max(0, likeCount - 1) });
       } else {
         await likeMoodboard(ownerUsername, moodboardId);
-        onChange({ liked: true, likeCount: likeCount + 1 });
+        onChange?.({ liked: true, likeCount: likeCount + 1 });
       }
     } catch {
       // Keep current state on failure.
@@ -46,7 +61,7 @@ export function MoodboardLikeButton({
   return (
     <button
       type="button"
-      className={`moodboard-like-btn ${liked ? 'moodboard-like-btn--active' : ''}`}
+      className={className}
       disabled={busy}
       aria-pressed={liked}
       aria-label={liked ? 'Quitar me gusta' : 'Me gusta'}

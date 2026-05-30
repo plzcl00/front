@@ -5,12 +5,11 @@ import {
   getLikes,
   getPermissions,
   grantPermission,
-  likeMoodboard,
   revokePermission,
   setVisibility,
-  unlikeMoodboard,
 } from '../api/moodboards';
 import { useOptionalSession } from '../auth/useSession';
+import { MoodboardLikeButton } from './MoodboardLikeButton';
 import { UsernameAutocomplete } from './UsernameAutocomplete';
 import './MoodboardSharingPanel.css';
 
@@ -111,23 +110,6 @@ export function MoodboardSharingPanel({
     }
   };
 
-  const handleLikeToggle = async () => {
-    setBusy(true);
-    setError(null);
-    try {
-      if (userHasLiked) {
-        await unlikeMoodboard(owner, id);
-      } else {
-        await likeMoodboard(owner, id);
-      }
-      await refreshLikes();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error');
-    } finally {
-      setBusy(false);
-    }
-  };
-
   return (
     <aside className="sharing-panel">
       <h3>Compartir y social</h3>
@@ -179,12 +161,19 @@ export function MoodboardSharingPanel({
         </>
       )}
 
-      <p>Me gusta: {likeCount}</p>
-      {!isOwner && currentUser && (
-        <button type="button" disabled={busy} onClick={() => void handleLikeToggle()}>
-          {userHasLiked ? 'Quitar me gusta' : 'Me gusta'}
-        </button>
-      )}
+      <div className="sharing-like-row">
+        <MoodboardLikeButton
+          ownerUsername={owner}
+          moodboardId={id}
+          liked={userHasLiked}
+          likeCount={likeCount}
+          readOnly={isOwner || !currentUser}
+          onChange={(next) => {
+            setLikeCount(next.likeCount);
+            void refreshLikes();
+          }}
+        />
+      </div>
       {likers.length > 0 && (
         <p className="sharing-likers">Les gusta: {likers.join(', ')}</p>
       )}

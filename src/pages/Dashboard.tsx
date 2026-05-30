@@ -170,9 +170,17 @@ export function Dashboard() {
                     <span className={`pill-badge ${board.isPublic ? 'pill-badge--public' : ''}`}>
                       {board.isPublic ? 'Público' : 'Privado'}
                     </span>
-                    <p className="dashboard-card-likes">Me gusta: {board.likeCount ?? 0}</p>
                   </div>
                 </Link>
+                <div className="explore-card-footer">
+                  <MoodboardLikeButton
+                    ownerUsername={board.ownerUsername}
+                    moodboardId={board.id}
+                    liked={false}
+                    likeCount={board.likeCount ?? 0}
+                    readOnly
+                  />
+                </div>
                 <div className="dashboard-card-actions">
                   <button
                     type="button"

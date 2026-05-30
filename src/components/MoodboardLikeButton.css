@@ -39,3 +39,12 @@
   filter: brightness(0) saturate(100%) invert(62%) sepia(49%) saturate(749%)
     hue-rotate(307deg) brightness(101%) contrast(95%);
 }
+
+.moodboard-like-btn--readonly {
+  cursor: default;
+}
+
+.moodboard-like-btn--readonly:hover {
+  border-color: rgba(0, 0, 0, 0.12);
+  background: var(--ediary-white);
+}

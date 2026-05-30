@@ -3,3 +3,9 @@
 .contenido-pagina--sign-up .form-container {
   margin-top: 0;
 }
+
+@media (max-width: 640px) {
+  .contenido-pagina--sign-up {
+    padding: 1rem 0.75rem;
+  }
+}

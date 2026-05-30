@@ -11,3 +11,28 @@
   margin-top: 1.5rem;
   font-weight: 600;
 }
+
+@media (max-width: 768px) {
+  .favorites-page .dashboard-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+
+  .favorites-page .dashboard-card-body {
+    padding: 0.65rem;
+  }
+
+  .favorites-page .dashboard-card-body h2 {
+    font-size: 0.85rem;
+  }
+
+  .favorites-page .explore-card-owner {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .favorites-page {
+    padding: 1rem 0.75rem;
+  }
+}

@@ -73,7 +73,7 @@ export function Home() {
             <img className="imagen-muestra2" src={imagenMuestra} alt="" />
           </div>
           <div className="sub-bienvenida2">
-            <h1>App para pc.</h1>
+            <h1>Tu diario visual, en cualquier dispositivo.</h1>
             <p>
               {isAuthenticated
                 ? 'Ya has iniciado sesión. Ve a tus moodboards.'

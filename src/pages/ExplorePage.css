@@ -59,3 +59,9 @@
 .explore-card-footer--sidebar {
   padding: 0 0.75rem 0.75rem;
 }
+
+@media (max-width: 640px) {
+  .explore-page {
+    padding: 1rem 0.75rem;
+  }
+}

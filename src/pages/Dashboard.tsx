@@ -6,7 +6,6 @@ import {
   deleteMoodboard,
   getLikedMoodboards,
   listMoodboards,
-  setVisibility,
 } from '../api/moodboards';
 import { getDiaryEntry } from '../api/diary';
 import { createEmptyMoodboardContent } from '../lib/moodboardContent';
@@ -93,18 +92,6 @@ export function Dashboard() {
   );
   const hasSearch = query.trim().length > 0;
 
-  const handleTogglePublic = async (board: Moodboard) => {
-    setBusy(true);
-    try {
-      await setVisibility(username, board.id, !board.isPublic);
-      await load();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al cambiar visibilidad');
-    } finally {
-      setBusy(false);
-    }
-  };
-
   const handleFavoriteLikeChange = (
     board: LikedMoodboardSummary,
     next: { liked: boolean; likeCount: number },
@@ -167,7 +154,9 @@ export function Dashboard() {
                   />
                   <div className="dashboard-card-body">
                     <h2>{moodboardDisplayName(board)}</h2>
-                    <span className={`pill-badge ${board.isPublic ? 'pill-badge--public' : ''}`}>
+                    <span
+                      className={`pill-badge ${board.isPublic ? 'pill-badge--public' : 'pill-badge--private'}`}
+                    >
                       {board.isPublic ? 'Público' : 'Privado'}
                     </span>
                   </div>
@@ -182,14 +171,6 @@ export function Dashboard() {
                   />
                 </div>
                 <div className="dashboard-card-actions">
-                  <button
-                    type="button"
-                    className="dashboard-card-btn"
-                    disabled={busy}
-                    onClick={() => void handleTogglePublic(board)}
-                  >
-                    {board.isPublic ? 'Privado' : 'Público'}
-                  </button>
                   <button
                     type="button"
                     className="dashboard-card-btn dashboard-card-btn--danger"
@@ -223,9 +204,11 @@ export function Dashboard() {
               Aún no has registrado cómo te sientes hoy.
             </p>
           )}
-          <Link to="/app/diario" className="dashboard-diary-link">
-            {todayDiaryFilled ? 'Ver diario' : 'Escribir en el diario'}
-          </Link>
+          {todayDiaryFilled === false && (
+            <Link to="/app/diario" className="dashboard-diary-link">
+              Escribir en el diario
+            </Link>
+          )}
 
           <h2 className="dashboard-sidebar-title dashboard-sidebar-title--spaced">Mis favoritos</h2>
           {likedBoards.length === 0 ? (

@@ -181,3 +181,15 @@
   margin-top: 0.75rem;
   color: var(--color-text-muted, #666);
 }
+
+@media (max-width: 640px) {
+  .diario-calendar,
+  .diario-detail {
+    padding: 1rem 0.75rem;
+  }
+
+  .diario-day {
+    min-height: 2.25rem;
+    font-size: 0.85rem;
+  }
+}

@@ -91,4 +91,25 @@
   .editor-page-layout {
     flex-direction: column;
   }
+
+  .editor-page-canvas {
+    min-width: 0;
+    padding: 0.5rem;
+    width: 100%;
+  }
+
+  .editor-page-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0.75rem 1rem;
+  }
+
+  .editor-page-name-label {
+    min-width: 0;
+    flex: 0 0 auto;
+  }
+
+  .editor-page-save {
+    width: 100%;
+  }
 }

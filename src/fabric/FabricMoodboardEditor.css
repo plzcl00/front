@@ -60,10 +60,11 @@
   align-items: flex-start;
   border: 1px solid rgba(250, 128, 149, 0.35);
   border-radius: var(--radius-card);
-  overflow: auto;
+  overflow: hidden;
   background: var(--ediary-white);
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.04);
   line-height: 0;
+  touch-action: none;
 }
 
 .fabric-canvas-wrap--pan {
@@ -136,6 +137,29 @@
   font-size: 0.8rem;
   color: var(--ediary-text);
   opacity: 0.75;
+}
+
+.fabric-zoom-hint--mobile {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .fabric-toolbar button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .fabric-canvas-wrap {
+    max-height: min(60vh, 600px);
+  }
+
+  .fabric-zoom-hint--desktop {
+    display: none;
+  }
+
+  .fabric-zoom-hint--mobile {
+    display: inline;
+  }
 }
 
 .fabric-canvas-wrap .canvas-container {

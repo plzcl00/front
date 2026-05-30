@@ -109,11 +109,22 @@
 @media (max-width: 768px) {
   .bienvenida2 {
     grid-template-columns: 1fr;
+    min-height: auto;
   }
 
   .bienvenida {
     margin-left: 5%;
     margin-right: 5%;
+  }
+
+  .decoracion {
+    min-height: auto;
+    margin-top: 0;
+    margin-bottom: 3rem;
+  }
+
+  .decoracion .form-container {
+    margin-top: 2rem;
   }
 }
 

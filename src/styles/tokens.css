@@ -19,4 +19,8 @@
   --radius-btn: 6px;
   --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.1);
   --shadow-elevated: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --bp-sm: 640px;
+  --bp-md: 768px;
+  --bp-lg: 900px;
+  --app-mobile-nav-height: 64px;
 }

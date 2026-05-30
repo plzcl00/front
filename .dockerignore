@@ -8,6 +8,5 @@ dist
 .env.*
 !.env.example
 inspection
-src/assetsFigmaNoUsados
 *.fig
 emotion-diary-web.fig

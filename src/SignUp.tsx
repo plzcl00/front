@@ -1,6 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
 import './SignUp.css';
-import googleIcon from './assets/icons/google.svg';
 import { MarketingHeader } from './components/MarketingHeader';
 import { Footer } from './components/Footer';
 import { RegistrationForm } from './components/RegistrationForm';
@@ -17,12 +16,6 @@ export function SignUp() {
         <div className="form-container card card--elevated">
           <h2>Bienvenido a EDiary</h2>
           <p>Descúbrete a ti mismo.</p>
-
-          <button type="button" className="btn-google" disabled title="Próximamente">
-            <img src={googleIcon} alt="" />
-            Regístrate con Google
-          </button>
-          <p className="form-divider">o</p>
 
           <RegistrationForm
             onSubmit={async (username, password) => {

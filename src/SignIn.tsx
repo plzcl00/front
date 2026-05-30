@@ -75,10 +75,6 @@ export function SignIn() {
 
             {error && <p className="form-error">{error}</p>}
 
-            <Link to="/reset-password" className="contrasenia-olvidada">
-              ¿Olvidaste tu contraseña?
-            </Link>
-
             <button type="submit" className="btn-registro-form" disabled={loading}>
               {loading ? 'Entrando…' : 'Iniciar sesión'}
             </button>

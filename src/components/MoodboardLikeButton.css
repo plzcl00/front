@@ -11,6 +11,8 @@
   font-family: inherit;
   font-size: 0.85rem;
   line-height: 1;
+  --like-star-pink-filter: brightness(0) saturate(100%) invert(62%) sepia(49%) saturate(749%)
+    hue-rotate(307deg) brightness(101%) contrast(95%);
 }
 
 .moodboard-like-btn:hover:not(:disabled) {
@@ -29,6 +31,10 @@
   display: block;
 }
 
+.moodboard-like-btn:not(.moodboard-like-btn--active) img {
+  filter: var(--like-star-pink-filter);
+}
+
 .moodboard-like-btn--active {
   border-color: var(--ediary-pink);
   background: rgba(250, 128, 149, 0.2);
@@ -36,8 +42,11 @@
 }
 
 .moodboard-like-btn--active img {
-  filter: brightness(0) saturate(100%) invert(62%) sepia(49%) saturate(749%)
-    hue-rotate(307deg) brightness(101%) contrast(95%);
+  filter: brightness(0) saturate(100%);
+}
+
+.moodboard-like-btn--active.moodboard-like-btn--readonly:hover img {
+  filter: var(--like-star-pink-filter);
 }
 
 .moodboard-like-btn--readonly {

@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import './SignIn.css';
 import { MarketingHeader } from './components/MarketingHeader';
 import { Footer } from './components/Footer';
+import { PasswordInput } from './components/PasswordInput';
 import { useAuth } from './auth/AuthContext';
 import { ApiError } from './api/client';
 
@@ -62,8 +63,7 @@ export function SignIn() {
 
             <div className="form-group">
               <label htmlFor="password">Contraseña</label>
-              <input
-                type="password"
+              <PasswordInput
                 id="password"
                 name="password"
                 autoComplete="current-password"

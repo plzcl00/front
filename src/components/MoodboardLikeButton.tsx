@@ -26,10 +26,12 @@ export function MoodboardLikeButton({
     readOnly ? 'moodboard-like-btn--readonly' : ''
   }`.trim();
 
+  const starIcon = <img src={iconStar} alt="" draggable={false} />;
+
   if (readOnly) {
     return (
       <span className={className} aria-label={`Me gusta: ${likeCount}`}>
-        <img src={iconStar} alt="" draggable={false} />
+        {starIcon}
         <span>{likeCount}</span>
       </span>
     );
@@ -67,7 +69,7 @@ export function MoodboardLikeButton({
       aria-label={liked ? 'Quitar me gusta' : 'Me gusta'}
       onClick={(event) => void handleClick(event)}
     >
-      <img src={iconStar} alt="" draggable={false} />
+      {starIcon}
       <span>{likeCount}</span>
     </button>
   );

@@ -103,7 +103,7 @@ export function MetricasPage() {
                     <XAxis dataKey="label" />
                     <YAxis domain={[1, 5]} ticks={[1, 2, 3, 4, 5]} />
                     <Tooltip />
-                    <Line type="monotone" dataKey="moodScore" stroke="#6b4ce6" strokeWidth={2} dot />
+                    <Line type="monotone" dataKey="moodScore" stroke="#fa8095" strokeWidth={2} dot />
                   </LineChart>
                 </ResponsiveContainer>
               </div>

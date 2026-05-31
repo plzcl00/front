@@ -71,21 +71,20 @@ export function MoodboardViewPage() {
   return (
     <AppShell title={`${board.ownerUsername} · ${moodboardDisplayName(board)}`}>
       <div className="editor-page">
-        <div className="editor-page-toolbar card">
-          {isOwner && (
-            <Link to={`/app/moodboards/${board.id}`} className="btn-registro-form editor-page-save">
-              Editar
-            </Link>
-          )}
-          {!isAuthenticated && (
-            <Link to="/sign-in" className="btn-registro-form editor-page-save">
-              Iniciar sesión
-            </Link>
-          )}
-          <Link to={isAuthenticated ? '/app' : '/'} className="editor-page-link">
-            Volver
-          </Link>
-        </div>
+        {(isOwner || !isAuthenticated) && (
+          <div className="editor-page-toolbar card">
+            {isOwner && (
+              <Link to={`/app/moodboards/${board.id}`} className="btn-registro-form editor-page-save">
+                Editar
+              </Link>
+            )}
+            {!isAuthenticated && (
+              <Link to="/sign-in" className="btn-registro-form editor-page-save">
+                Iniciar sesión
+              </Link>
+            )}
+          </div>
+        )}
 
         <div className="editor-page-layout">
           <div className="editor-page-canvas card card--elevated">

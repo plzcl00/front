@@ -1,5 +1,4 @@
 import { type FormEvent, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { AppShell } from '../components/AppShell';
 import { PasswordInput } from '../components/PasswordInput';
 import { useAuth } from '../auth/AuthContext';
@@ -10,18 +9,12 @@ import './SettingsPage.css';
 export function SettingsPage() {
   const { username } = useSession();
   const { logout } = useAuth();
-  const navigate = useNavigate();
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
-
-  const handleLogout = async () => {
-    await logout();
-    navigate('/');
-  };
 
   const handlePasswordChange = async (event: FormEvent) => {
     event.preventDefault();
@@ -65,7 +58,7 @@ export function SettingsPage() {
             <button
               type="button"
               className="settings-logout-btn"
-              onClick={() => void handleLogout()}
+              onClick={() => void logout()}
             >
               Cerrar sesión
             </button>

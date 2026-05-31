@@ -1,15 +1,9 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import logo from '../assets/Ediary.png';
 import { useAuth } from '../auth/AuthContext';
 
 export function MarketingHeader() {
   const { isAuthenticated, logout } = useAuth();
-  const navigate = useNavigate();
-
-  const handleLogout = async () => {
-    await logout();
-    navigate('/');
-  };
 
   return (
     <header>
@@ -22,7 +16,7 @@ export function MarketingHeader() {
             <Link to="/app" className="btn-inicio-sesion">
               Mis moodboards
             </Link>
-            <button type="button" className="btn-registro" onClick={() => void handleLogout()}>
+            <button type="button" className="btn-registro" onClick={() => void logout()}>
               Cerrar sesión
             </button>
           </>

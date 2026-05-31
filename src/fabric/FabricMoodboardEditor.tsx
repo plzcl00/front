@@ -1,4 +1,13 @@
-import { Canvas, Circle, FabricImage, IText, Point, Rect, type FabricObject } from 'fabric';
+import {
+  Canvas,
+  Circle,
+  FabricImage,
+  IText,
+  PencilBrush,
+  Point,
+  Rect,
+  type FabricObject,
+} from 'fabric';
 import { useCallback, useEffect, useRef, useState, type MutableRefObject } from 'react';
 import type { MoodboardContent } from '../types/api';
 import { uploadMedia, deleteMedia } from '../api/moodboards';
@@ -19,7 +28,8 @@ import {
   trackBlobUrl,
 } from './mediaAssets';
 import iconText from '../assets/icons/text-size.svg';
-import iconDraw from '../assets/icons/draw.svg';
+import iconDraw from '../assets/icons/MdOutlineGesture.svg';
+import iconRect from '../assets/icons/MdOutlineCropDin.svg';
 import iconCircle from '../assets/icons/circle.svg';
 import iconImage from '../assets/icons/image-add.svg';
 import { ColorPickerButton } from '../components/ColorPickerButton';
@@ -33,6 +43,9 @@ const DEFAULT_CANVAS_BG = '#ffffff';
 const DEFAULT_TEXT_FILL = '#333333';
 const DEFAULT_SHAPE_FILL = '#e8f4fc';
 const DEFAULT_SHAPE_STROKE = '#4a90d9';
+const DEFAULT_DRAW_WIDTH = 3;
+
+type EditorMode = 'select' | 'draw';
 
 function readColorValue(value: unknown, fallback: string): string {
   return typeof value === 'string' ? value : fallback;
@@ -51,7 +64,7 @@ function objectSupportsFill(obj: FabricObject): boolean {
 }
 
 function objectSupportsStroke(obj: FabricObject): boolean {
-  return isShapeObject(obj);
+  return isShapeObject(obj) || obj.type === 'path';
 }
 
 function getSelectedObjects(canvas: Canvas): FabricObject[] {
@@ -195,6 +208,7 @@ export function FabricMoodboardEditor({
   const [strokeColor, setStrokeColor] = useState(DEFAULT_SHAPE_STROKE);
   const [fillControlEnabled, setFillControlEnabled] = useState(true);
   const [strokeControlEnabled, setStrokeControlEnabled] = useState(true);
+  const [editorMode, setEditorMode] = useState<EditorMode>('select');
 
   const syncColorControlsFromCanvas = useCallback(() => {
     const canvas = fabricRef.current;
@@ -205,6 +219,14 @@ export function FabricMoodboardEditor({
     setBackgroundColor(
       readColorValue(canvas.backgroundColor, DEFAULT_CANVAS_BG),
     );
+
+    if (canvas.isDrawingMode) {
+      setFillColor(defaultShapeFillRef.current);
+      setStrokeColor(defaultShapeStrokeRef.current);
+      setFillControlEnabled(true);
+      setStrokeControlEnabled(true);
+      return;
+    }
 
     const selected = getSelectedObjects(canvas);
     if (selected.length === 0) {
@@ -279,24 +301,68 @@ export function FabricMoodboardEditor({
 
   const handleStrokeColorChange = useCallback((color: string) => {
     setStrokeColor(color);
+    defaultShapeStrokeRef.current = color;
+
     const canvas = fabricRef.current;
     if (!canvas) {
-      defaultShapeStrokeRef.current = color;
       return;
+    }
+
+    if (canvas.isDrawingMode && canvas.freeDrawingBrush) {
+      canvas.freeDrawingBrush.color = color;
     }
 
     const selected = getSelectedObjects(canvas).filter(objectSupportsStroke);
-    if (selected.length === 0) {
-      defaultShapeStrokeRef.current = color;
-      return;
-    }
-
     for (const obj of selected) {
       obj.set('stroke', color);
     }
-    defaultShapeStrokeRef.current = color;
     canvas.requestRenderAll();
   }, []);
+
+  const exitDrawMode = useCallback(() => {
+    const canvas = fabricRef.current;
+    const wrap = wrapRef.current;
+    if (!canvas || !canvas.isDrawingMode) {
+      return;
+    }
+    canvas.isDrawingMode = false;
+    canvas.selection = !readOnly;
+    wrap?.classList.remove('fabric-canvas-wrap--draw');
+    setEditorMode('select');
+    canvas.requestRenderAll();
+  }, [readOnly]);
+
+  const enterDrawMode = useCallback(() => {
+    const canvas = fabricRef.current;
+    const wrap = wrapRef.current;
+    if (!canvas || readOnly) {
+      return;
+    }
+    canvas.discardActiveObject();
+    canvas.isDrawingMode = true;
+    canvas.selection = false;
+    if (!canvas.freeDrawingBrush) {
+      canvas.freeDrawingBrush = new PencilBrush(canvas);
+    }
+    canvas.freeDrawingBrush.color = defaultShapeStrokeRef.current;
+    canvas.freeDrawingBrush.width = DEFAULT_DRAW_WIDTH;
+    wrap?.classList.add('fabric-canvas-wrap--draw');
+    setEditorMode('draw');
+    syncColorControlsFromCanvas();
+    canvas.requestRenderAll();
+  }, [readOnly, syncColorControlsFromCanvas]);
+
+  const toggleDrawMode = useCallback(() => {
+    const canvas = fabricRef.current;
+    if (!canvas || readOnly) {
+      return;
+    }
+    if (canvas.isDrawingMode) {
+      exitDrawMode();
+    } else {
+      enterDrawMode();
+    }
+  }, [enterDrawMode, exitDrawMode, readOnly]);
 
   const persistCanvas = useCallback(async (): Promise<MoodboardContent> => {
     const canvas = fabricRef.current;
@@ -482,6 +548,11 @@ export function FabricMoodboardEditor({
     layoutStateRef.current = { width: 0, absoluteZoom: 0 };
     lastZoomPercentRef.current = 100;
 
+    const onPathCreated = (opt: { path: FabricObject }) => {
+      opt.path.set({ objectCaching: false });
+    };
+    canvas.on('path:created', onPathCreated);
+
     const rawJson = extractFabricJson(initialContentRef.current);
     initialAssetIds.current = rawJson ? collectAssetIds(rawJson) : [];
 
@@ -524,6 +595,7 @@ export function FabricMoodboardEditor({
 
     return () => {
       cancelled = true;
+      canvas.off('path:created', onPathCreated);
       void canvas.dispose();
       fabricRef.current = null;
       revokeAllBlobUrls();
@@ -622,6 +694,9 @@ export function FabricMoodboardEditor({
       (readOnly || userZoomScaleRef.current > 1.01);
 
     const shouldStartPan = (hasTarget: boolean) => {
+      if (canvas.isDrawingMode) {
+        return false;
+      }
       if (isEditingText()) {
         return false;
       }
@@ -797,6 +872,7 @@ export function FabricMoodboardEditor({
     const canvas = fabricRef.current;
     const wrap = wrapRef.current;
     if (!canvas || readOnly) return;
+    exitDrawMode();
     const text = new IText('Escribe aquí…', {
       fontSize: 24,
       fill: defaultTextFillRef.current,
@@ -813,6 +889,7 @@ export function FabricMoodboardEditor({
     const canvas = fabricRef.current;
     const wrap = wrapRef.current;
     if (!canvas || readOnly) return;
+    exitDrawMode();
     const rect = new Rect({
       width: 160,
       height: 100,
@@ -830,6 +907,7 @@ export function FabricMoodboardEditor({
     const canvas = fabricRef.current;
     const wrap = wrapRef.current;
     if (!canvas || readOnly) return;
+    exitDrawMode();
     const circle = new Circle({
       radius: 50,
       fill: defaultShapeFillRef.current,
@@ -845,6 +923,7 @@ export function FabricMoodboardEditor({
   const removeSelected = async () => {
     const canvas = fabricRef.current;
     if (!canvas || readOnly) return;
+    exitDrawMode();
     const active = canvas.getActiveObjects();
     for (const obj of active) {
       const assetId = obj.get(EDIARY_ASSET_ID) as number | undefined;
@@ -865,6 +944,7 @@ export function FabricMoodboardEditor({
     const canvas = fabricRef.current;
     const wrap = wrapRef.current;
     if (!canvas || readOnly) return;
+    exitDrawMode();
     setBusy(true);
     setMessage(null);
     try {
@@ -898,8 +978,17 @@ export function FabricMoodboardEditor({
             <img src={iconText} alt="" />
             Texto
           </button>
-          <button type="button" onClick={addRect} disabled={loading || busy}>
+          <button
+            type="button"
+            className={editorMode === 'draw' ? 'is-active' : undefined}
+            onClick={toggleDrawMode}
+            disabled={loading || busy}
+          >
             <img src={iconDraw} alt="" />
+            Dibujar
+          </button>
+          <button type="button" onClick={addRect} disabled={loading || busy}>
+            <img src={iconRect} alt="" />
             Rectángulo
           </button>
           <button type="button" onClick={addCircle} disabled={loading || busy}>

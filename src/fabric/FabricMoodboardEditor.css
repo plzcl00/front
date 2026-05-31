@@ -52,6 +52,19 @@
   height: 18px;
 }
 
+.fabric-toolbar button.is-active {
+  outline: 2px solid var(--ediary-text);
+  outline-offset: 2px;
+}
+
+.fabric-canvas-wrap--draw {
+  cursor: crosshair;
+}
+
+.fabric-canvas-wrap--draw.fabric-canvas-wrap--pan {
+  cursor: crosshair;
+}
+
 .fabric-color-controls {
   display: flex;
   flex-wrap: wrap;

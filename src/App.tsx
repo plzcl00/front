@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './auth/AuthContext';
 import { SearchProvider } from './search/SearchContext';
+import { GuestRoute } from './auth/GuestRoute';
 import { ProtectedRoute } from './auth/ProtectedRoute';
 import { Home } from './Home';
 import { SignIn } from './SignIn';
@@ -23,7 +24,14 @@ export function App() {
       <SearchProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route
+            path="/"
+            element={
+              <GuestRoute>
+                <Home />
+              </GuestRoute>
+            }
+          />
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/terminos" element={<LegalStubPage title="Términos de servicio" />} />

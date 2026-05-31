@@ -208,8 +208,6 @@ export function Dashboard() {
                     likeCount={board.likeCount ?? 0}
                     readOnly
                   />
-                </div>
-                <div className="dashboard-card-actions">
                   <button
                     type="button"
                     className="dashboard-card-btn dashboard-card-btn--danger"

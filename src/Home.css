@@ -36,8 +36,13 @@
 }
 
 .sub-bienvenida2 .btn-registro-form {
-  margin: 0 5% 2rem;
+  margin: 1rem auto 2rem;
   max-width: 280px;
+  align-self: center;
+}
+
+.contenido-pagina--home {
+  padding-bottom: clamp(3rem, 8vw, 6rem);
 }
 
 .bienvenida hr {
@@ -48,16 +53,18 @@
   margin-top: 10%;
 }
 
-.imagen-muestra1 {
+.section-schematic {
   width: 100%;
-  border-radius: var(--radius-card);
-  object-fit: cover;
-  max-height: 420px;
+  display: block;
+  object-fit: contain;
 }
 
-.imagen-muestra2 {
-  width: 100%;
+.section-schematic--devices {
   height: 100%;
+  object-fit: cover;
+}
+
+.section-schematic--welcome {
   object-fit: cover;
 }
 
@@ -69,10 +76,9 @@
   min-height: 280px;
 }
 
-.section-visual img {
+.section-visual .section-schematic {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
   display: block;
 }
 
@@ -101,7 +107,7 @@
   margin-top: 14%;
 }
 
-.decoracion > img {
+.decoracion > .section-schematic--welcome {
   width: 100%;
   margin-top: 0;
 }

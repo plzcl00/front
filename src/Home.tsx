@@ -1,7 +1,11 @@
 import { Link, useNavigate } from 'react-router-dom';
 import './Home.css';
-import imagenMuestra from './assets/imagen-muestra.jpg';
-import imagenDecoracion from './assets/processing.svg';
+import sectionMoodboard from './assets/home/section-moodboard.svg';
+import sectionExplore from './assets/home/section-explore.svg';
+import sectionDiary from './assets/home/section-diary.svg';
+import sectionCalendar from './assets/home/section-calendar.svg';
+import sectionDevices from './assets/home/section-devices.svg';
+import sectionWelcome from './assets/home/section-welcome.svg';
 import { MarketingHeader } from './components/MarketingHeader';
 import { Footer } from './components/Footer';
 import { RegistrationForm } from './components/RegistrationForm';
@@ -15,12 +19,12 @@ export function Home() {
     <>
       <MarketingHeader />
 
-      <div className="contenido-pagina">
+      <div className="contenido-pagina contenido-pagina--home">
         <section className="bienvenida">
           <h1>Crea moodboards visuales.</h1>
           <p>Organiza imágenes, texto y formas para expresar ideas y emociones.</p>
           <div className="section-visual">
-            <img className="imagen-muestra1" src={imagenMuestra} alt="Moodboards" />
+            <img className="section-schematic" src={sectionMoodboard} alt="" />
           </div>
           <hr />
         </section>
@@ -32,7 +36,7 @@ export function Home() {
             favoritos.
           </p>
           <div className="section-visual">
-            <img className="imagen-muestra1" src={imagenMuestra} alt="Explorar" />
+            <img className="section-schematic" src={sectionExplore} alt="" />
           </div>
           <hr />
         </section>
@@ -44,7 +48,7 @@ export function Home() {
             métricas para comprenderte mejor.
           </p>
           <div className="section-visual">
-            <img className="imagen-muestra1" src={imagenMuestra} alt="Métricas" />
+            <img className="section-schematic" src={sectionDiary} alt="" />
           </div>
           {isAuthenticated && (
             <div className="home-feature-links">
@@ -63,14 +67,14 @@ export function Home() {
           <h1>Organiza tu agenda.</h1>
           <p>Añade recordatorios a tus entradas del diario desde el calendario.</p>
           <div className="section-visual">
-            <img className="imagen-muestra1" src={imagenMuestra} alt="Calendario" />
+            <img className="section-schematic" src={sectionCalendar} alt="" />
           </div>
           <hr />
         </section>
 
         <section className="bienvenida2">
           <div className="sub-bienvenida1">
-            <img className="imagen-muestra2" src={imagenMuestra} alt="" />
+            <img className="section-schematic section-schematic--devices" src={sectionDevices} alt="" />
           </div>
           <div className="sub-bienvenida2">
             <h1>Tu diario visual, en cualquier dispositivo.</h1>
@@ -99,7 +103,7 @@ export function Home() {
                 termsId="home-terminos"
                 onSubmit={async (username, password) => {
                   await register(username, password);
-                  navigate('/app', { replace: true });
+                  navigate('/app/explorar', { replace: true });
                 }}
                 footer={
                   <p>
@@ -108,7 +112,7 @@ export function Home() {
                 }
               />
             </div>
-            <img src={imagenDecoracion} alt="" />
+            <img className="section-schematic section-schematic--welcome" src={sectionWelcome} alt="" />
           </div>
         )}
       </div>

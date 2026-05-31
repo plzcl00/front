@@ -10,7 +10,7 @@ export function SignIn() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const from = (location.state as { from?: string } | null)?.from ?? '/app';
+  const from = (location.state as { from?: string } | null)?.from ?? '/app/explorar';
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');

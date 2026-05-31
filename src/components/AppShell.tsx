@@ -1,14 +1,14 @@
 import { NavLink, Link, useLocation } from 'react-router-dom';
 import type { ChangeEvent, ReactNode } from 'react';
 import { useSearch } from '../search/SearchContext';
-import iconGrid from '../assets/icons/layout-grid.svg';
-import iconEye from '../assets/icons/eye.svg';
-import iconHeart from '../assets/icons/heart.svg';
-import iconSettings from '../assets/icons/settings.svg';
-import iconCalendar from '../assets/icons/calendar.svg';
-import iconGraphics from '../assets/icons/graphics.svg';
+import iconSpaceDashboard from '../assets/icons/MdOutlineSpaceDashboard.svg';
+import iconExplore from '../assets/icons/MdOutlineSearch.svg';
+import iconStar from '../assets/icons/MdStarBorder.svg';
+import iconTune from '../assets/icons/MdTune.svg';
+import iconDiario from '../assets/icons/MdOutlineEditCalendar.svg';
+import iconMetricas from '../assets/icons/MdInsertChartOutlined.svg';
 import iconSearch from '../assets/icons/search.svg';
-import logo from '../assets/Ediary.png';
+import logo from '../assets/icons/Ediary_Imagotipo.png';
 import './AppShell.css';
 
 interface AppShellProps {
@@ -28,7 +28,7 @@ const navItems: NavItem[] = [
   {
     to: '/app',
     label: 'Moodboards',
-    icon: iconGrid,
+    icon: iconSpaceDashboard,
     isActive: (pathname) =>
       pathname === '/app' ||
       pathname.startsWith('/app/moodboards'),
@@ -36,32 +36,34 @@ const navItems: NavItem[] = [
   {
     to: '/app/explorar',
     label: 'Explorar',
-    icon: iconEye,
+    icon: iconExplore,
   },
   {
     to: '/app/favoritos',
     label: 'Favoritos',
-    icon: iconHeart,
+    icon: iconStar,
   },
   {
     to: '/app/diario',
     label: 'Diario',
-    icon: iconCalendar,
+    icon: iconDiario,
   },
   {
     to: '/app/metricas',
     label: 'Métricas',
-    icon: iconGraphics,
+    icon: iconMetricas,
   },
   {
     to: '/app/ajustes',
     label: 'Ajustes',
-    icon: iconSettings,
+    icon: iconTune,
   },
 ];
 
 const navLinkClass = 'app-shell__nav-link';
 const navLinkActiveClass = 'app-shell__nav-link is-active';
+
+const routesWithoutSearch = new Set(['/app/diario', '/app/metricas', '/app/ajustes']);
 
 function navClassName(isActive: boolean): string {
   return isActive ? navLinkActiveClass : navLinkClass;
@@ -70,6 +72,7 @@ function navClassName(isActive: boolean): string {
 export function AppShell({ children, title }: AppShellProps) {
   const location = useLocation();
   const { query, setQuery } = useSearch();
+  const showSearch = !routesWithoutSearch.has(location.pathname);
 
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     setQuery(event.target.value);
@@ -103,19 +106,21 @@ export function AppShell({ children, title }: AppShellProps) {
       </aside>
 
       <div className="app-shell__body">
-        <header className="app-shell__topbar">
-          <div className="app-shell__search">
-            <img src={iconSearch} alt="" />
-            <input
-              type="search"
-              placeholder="Busca"
-              aria-label="Buscar"
-              value={query}
-              onChange={handleSearchChange}
-            />
-          </div>
-          {title && <h1 className="app-shell__title">{title}</h1>}
-        </header>
+        {showSearch && (
+          <header className="app-shell__topbar">
+            <div className="app-shell__search">
+              <img src={iconSearch} alt="" />
+              <input
+                type="search"
+                placeholder="Busca"
+                aria-label="Buscar"
+                value={query}
+                onChange={handleSearchChange}
+              />
+            </div>
+          </header>
+        )}
+        {title && <h1 className="app-shell__title">{title}</h1>}
         <main className="app-shell__main">
           <div className="app-shell__content">{children}</div>
         </main>

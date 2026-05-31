@@ -9,7 +9,12 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  min-height: 0;
+  min-height: 100%;
+}
+
+.settings-section--security {
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .settings-section {
@@ -30,11 +35,6 @@
 .settings-section-title--compact {
   margin-bottom: 0.75rem;
   font-size: 1rem;
-}
-
-.settings-page-sidebar-spacer {
-  flex: 1;
-  min-height: 0;
 }
 
 .settings-account-stat {
@@ -81,6 +81,62 @@
   background: rgba(192, 57, 43, 0.06);
 }
 
+.settings-section--danger {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(192, 57, 43, 0.25);
+}
+
+.settings-delete-form {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.settings-delete-form .settings-delete-btn {
+  margin-top: auto;
+}
+
+.settings-danger-text {
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+  color: var(--ediary-text-muted);
+  line-height: 1.5;
+  text-align: left;
+}
+
+.settings-delete-confirm-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.65rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+.settings-delete-btn {
+  border-radius: 999px;
+  padding: 0.55rem 1.25rem;
+  border: 1px solid #c0392b;
+  background: #c0392b;
+  color: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+
+.settings-delete-btn:hover:not(:disabled) {
+  background: #a93226;
+}
+
+.settings-delete-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
 @media (max-width: 900px) {
   .settings-page {
     grid-template-columns: 1fr;
@@ -95,8 +151,17 @@
     padding: 1rem 0.75rem;
   }
 
-  .settings-page-sidebar-spacer {
-    display: none;
+  .settings-section--danger {
+    flex: none;
+  }
+
+  .settings-delete-form {
+    flex: none;
+    display: block;
+  }
+
+  .settings-delete-form .settings-delete-btn {
+    margin-top: 0;
   }
 
   .settings-logout-btn {

@@ -81,8 +81,8 @@
 }
 
 .diario-day--selected {
-  border-color: var(--color-primary, #6b4ce6);
-  background: rgba(107, 76, 230, 0.08);
+  border-color: var(--color-primary);
+  background: rgba(250, 128, 149, 0.08);
 }
 
 .diario-day--today {
@@ -101,7 +101,7 @@
 }
 
 .diario-dot--entry {
-  background: var(--color-primary, #6b4ce6);
+  background: var(--color-primary);
 }
 
 .diario-dot--reminder {
@@ -140,8 +140,8 @@
 }
 
 .diario-mood-btn.is-active {
-  border-color: var(--color-primary, #6b4ce6);
-  background: var(--color-primary, #6b4ce6);
+  border-color: var(--color-primary);
+  background: var(--color-primary);
   color: #fff;
 }
 

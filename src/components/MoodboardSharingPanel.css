@@ -27,7 +27,7 @@
   font-size: 0.9rem;
 }
 
-.sharing-panel button {
+.sharing-panel button:not(.moodboard-like-btn) {
   padding: 0.45rem 0.85rem;
   border-radius: var(--radius-btn);
   border: none;
@@ -39,12 +39,12 @@
   margin-bottom: 0.5rem;
 }
 
-.sharing-panel button:hover:not(:disabled) {
+.sharing-panel button:not(.moodboard-like-btn):hover:not(:disabled) {
   background-color: rgba(250, 128, 149, 0.75);
   color: var(--ediary-text);
 }
 
-.sharing-panel button:disabled {
+.sharing-panel button:not(.moodboard-like-btn):disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
@@ -99,6 +99,34 @@
 
 .sharing-like-row {
   margin-bottom: 0.75rem;
+}
+
+.sharing-like-row .moodboard-like-btn {
+  margin-bottom: 0;
+}
+
+.sharing-panel .moodboard-like-btn {
+  margin-bottom: 0;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: var(--ediary-white);
+  color: var(--ediary-text);
+}
+
+.sharing-panel .moodboard-like-btn--active {
+  border-color: var(--ediary-pink);
+  background: rgba(250, 128, 149, 0.2);
+  color: var(--ediary-pink);
+}
+
+.sharing-panel .moodboard-like-btn:hover:not(:disabled) {
+  border-color: var(--ediary-pink);
+  background: rgba(250, 128, 149, 0.1);
+  color: var(--ediary-text);
+}
+
+.sharing-panel .moodboard-like-btn--active:hover:not(:disabled) {
+  background: rgba(250, 128, 149, 0.2);
+  color: var(--ediary-pink);
 }
 
 .sharing-likers {

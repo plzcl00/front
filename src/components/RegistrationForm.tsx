@@ -1,6 +1,7 @@
 import { useState, type FormEvent, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { ApiError } from '../api/client';
+import { PasswordInput } from './PasswordInput';
 
 interface RegistrationFormProps {
   onSubmit: (username: string, password: string) => Promise<void>;
@@ -57,8 +58,7 @@ export function RegistrationForm({
 
       <div className="form-group">
         <label htmlFor={passwordId}>Contraseña</label>
-        <input
-          type="password"
+        <PasswordInput
           id={passwordId}
           autoComplete="new-password"
           value={password}

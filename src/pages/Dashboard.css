@@ -117,13 +117,6 @@
   color: inherit;
 }
 
-.dashboard-card-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  padding: 0 1rem 1rem;
-}
-
 .dashboard-card-btn {
   font-size: 0.85rem;
   padding: 0.35rem 0.65rem;

@@ -1,20 +1,27 @@
 import { type FormEvent, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AppShell } from '../components/AppShell';
 import { PasswordInput } from '../components/PasswordInput';
 import { useAuth } from '../auth/AuthContext';
 import { useSession } from '../auth/useSession';
-import { changePassword } from '../api/auth';
+import { clearSession } from '../auth/session';
+import { changePassword, deleteAccount } from '../api/auth';
 import './SettingsPage.css';
 
 export function SettingsPage() {
   const { username } = useSession();
   const { logout } = useAuth();
+  const navigate = useNavigate();
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [deleteBusy, setDeleteBusy] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const handlePasswordChange = async (event: FormEvent) => {
     event.preventDefault();
@@ -41,6 +48,24 @@ export function SettingsPage() {
     }
   };
 
+  const handleDeleteAccount = async (event: FormEvent) => {
+    event.preventDefault();
+    if (deleteConfirmText !== username) {
+      setDeleteError('Escribe tu nombre de usuario exactamente para confirmar');
+      return;
+    }
+    setDeleteBusy(true);
+    setDeleteError(null);
+    try {
+      await deleteAccount(username, { password: deletePassword });
+      clearSession();
+      navigate('/', { replace: true });
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : 'No se pudo eliminar la cuenta');
+      setDeleteBusy(false);
+    }
+  };
+
   return (
     <AppShell title="Ajustes">
       <div className="settings-page">
@@ -63,7 +88,52 @@ export function SettingsPage() {
               Cerrar sesión
             </button>
           </section>
-          <div className="settings-page-sidebar-spacer" aria-hidden="true" />
+
+          <section className="settings-section settings-section--danger card card--elevated">
+            <h2 className="settings-section-title settings-section-title--compact">Zona de peligro</h2>
+            <p className="settings-danger-text">
+              Eliminar tu cuenta borra de forma permanente tus moodboards, entradas del diario,
+              likes y permisos. Esta acción no se puede deshacer.
+            </p>
+            <form className="settings-delete-form" onSubmit={(e) => void handleDeleteAccount(e)}>
+              <div className="form-group">
+                <label htmlFor="delete-password">Contraseña</label>
+                <PasswordInput
+                  id="delete-password"
+                  autoComplete="current-password"
+                  value={deletePassword}
+                  onChange={(e) => setDeletePassword(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="delete-confirm">
+                  Escribe <strong>{username}</strong> para confirmar
+                </label>
+                <input
+                  id="delete-confirm"
+                  type="text"
+                  className="settings-delete-confirm-input"
+                  value={deleteConfirmText}
+                  onChange={(e) => setDeleteConfirmText(e.target.value)}
+                  autoComplete="off"
+                  required
+                />
+              </div>
+              {deleteError && (
+                <p className="form-error" role="alert">
+                  {deleteError}
+                </p>
+              )}
+              <button
+                type="submit"
+                className="settings-delete-btn"
+                disabled={deleteBusy}
+              >
+                {deleteBusy ? 'Eliminando…' : 'Eliminar cuenta'}
+              </button>
+            </form>
+          </section>
         </div>
 
         <section className="settings-section settings-section--security card card--elevated">

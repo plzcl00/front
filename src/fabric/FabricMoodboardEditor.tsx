@@ -33,6 +33,7 @@ import iconRect from '../assets/icons/MdOutlineCropDin.svg';
 import iconCircle from '../assets/icons/circle.svg';
 import iconImage from '../assets/icons/image-add.svg';
 import { ColorPickerButton } from '../components/ColorPickerButton';
+import { exportCanvasToBlob } from './canvasExport';
 import './FabricMoodboardEditor.css';
 
 const MIN_ZOOM = 0.25;
@@ -136,6 +137,7 @@ interface FabricMoodboardEditorProps {
   onPersist?: (content: MoodboardContent) => Promise<void>;
   saveRef?: MutableRefObject<(() => Promise<MoodboardContent>) | null>;
   exportThumbnailRef?: MutableRefObject<(() => Promise<Blob>) | null>;
+  exportImageRef?: MutableRefObject<(() => Promise<Blob>) | null>;
   publicAccess?: boolean;
 }
 
@@ -160,17 +162,6 @@ function tuneRenderedObjects(canvas: Canvas) {
   }
 }
 
-function dataUrlToBlob(dataUrl: string): Blob {
-  const [header, base64] = dataUrl.split(',');
-  const mime = header.match(/:(.*?);/)?.[1] ?? 'image/jpeg';
-  const bytes = atob(base64);
-  const arr = new Uint8Array(bytes.length);
-  for (let i = 0; i < bytes.length; i++) {
-    arr[i] = bytes.charCodeAt(i);
-  }
-  return new Blob([arr], { type: mime });
-}
-
 export function FabricMoodboardEditor({
   ownerUsername,
   moodboardId,
@@ -180,6 +171,7 @@ export function FabricMoodboardEditor({
   onPersist,
   saveRef,
   exportThumbnailRef,
+  exportImageRef,
   publicAccess = false,
 }: FabricMoodboardEditorProps) {
   const canvasElRef = useRef<HTMLCanvasElement>(null);
@@ -407,12 +399,22 @@ export function FabricMoodboardEditor({
       throw new Error('Canvas no inicializado');
     }
     const width = canvas.getWidth();
-    const dataUrl = canvas.toDataURL({
+    return exportCanvasToBlob(canvas, {
       format: 'jpeg',
       quality: 0.82,
       multiplier: Math.min(1, 400 / width),
     });
-    return dataUrlToBlob(dataUrl);
+  }, []);
+
+  const exportImage = useCallback(async (): Promise<Blob> => {
+    const canvas = fabricRef.current;
+    if (!canvas) {
+      throw new Error('Canvas no inicializado');
+    }
+    return exportCanvasToBlob(canvas, {
+      format: 'png',
+      multiplier: 1,
+    });
   }, []);
 
   const syncCanvasLayout = useCallback((resetPan = false) => {
@@ -524,6 +526,17 @@ export function FabricMoodboardEditor({
       }
     };
   }, [exportThumbnailRef, exportThumbnail]);
+
+  useEffect(() => {
+    if (exportImageRef) {
+      exportImageRef.current = exportImage;
+    }
+    return () => {
+      if (exportImageRef) {
+        exportImageRef.current = null;
+      }
+    };
+  }, [exportImageRef, exportImage]);
 
   useEffect(() => {
     let cancelled = false;

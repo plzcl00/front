@@ -7,6 +7,7 @@ import { FabricMoodboardEditor } from '../fabric/FabricMoodboardEditor';
 import { AppShell } from '../components/AppShell';
 import { MoodboardSharingPanel } from '../components/MoodboardSharingPanel';
 import { moodboardDisplayName } from '../lib/moodboardDisplay';
+import { downloadBlob, sanitizeFilename } from '../lib/downloadBlob';
 import './MoodboardEditorPage.css';
 
 export function MoodboardEditorPage() {
@@ -23,6 +24,9 @@ export function MoodboardEditorPage() {
   const [draftName, setDraftName] = useState('');
   const saveCanvasRef = useRef<(() => Promise<MoodboardContent>) | null>(null);
   const exportThumbnailRef = useRef<(() => Promise<Blob>) | null>(null);
+  const exportImageRef = useRef<(() => Promise<Blob>) | null>(null);
+  const [downloading, setDownloading] = useState(false);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     if (Number.isNaN(moodboardId)) {
@@ -91,6 +95,21 @@ export function MoodboardEditorPage() {
     }
   };
 
+  const handleDownload = async () => {
+    if (!exportImageRef.current || !board) return;
+    setDownloading(true);
+    setDownloadError(null);
+    try {
+      const blob = await exportImageRef.current();
+      const filename = `${sanitizeFilename(moodboardDisplayName(board))}.png`;
+      downloadBlob(blob, filename);
+    } catch (err) {
+      setDownloadError(err instanceof Error ? err.message : 'No se pudo descargar la imagen');
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   if (loading) {
     return (
       <AppShell title="Editor">
@@ -128,6 +147,14 @@ export function MoodboardEditorPage() {
           </label>
           <button
             type="button"
+            className="editor-page-btn-secondary"
+            disabled={downloading || saving}
+            onClick={() => void handleDownload()}
+          >
+            {downloading ? 'Descargando…' : 'Descargar imagen'}
+          </button>
+          <button
+            type="button"
             className="btn-registro-form editor-page-save"
             disabled={saving}
             onClick={() => void handleSave()}
@@ -145,6 +172,11 @@ export function MoodboardEditorPage() {
             {thumbnailWarning}
           </p>
         )}
+        {downloadError && (
+          <p className="editor-page-error" role="alert">
+            {downloadError}
+          </p>
+        )}
 
         <div className="editor-page-layout">
           <div className="editor-page-canvas card card--elevated">
@@ -154,6 +186,7 @@ export function MoodboardEditorPage() {
               initialContent={board.content}
               saveRef={saveCanvasRef}
               exportThumbnailRef={exportThumbnailRef}
+              exportImageRef={exportImageRef}
               onPersist={handlePersist}
             />
           </div>

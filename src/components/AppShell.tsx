@@ -1,14 +1,14 @@
 import { NavLink, Link, useLocation } from 'react-router-dom';
 import type { ChangeEvent, ReactNode } from 'react';
 import { useSearch } from '../search/SearchContext';
-import iconGrid from '../assets/icons/layout-grid.svg';
-import iconEye from '../assets/icons/eye.svg';
-import iconHeart from '../assets/icons/heart.svg';
-import iconSettings from '../assets/icons/settings.svg';
-import iconCalendar from '../assets/icons/calendar.svg';
-import iconGraphics from '../assets/icons/graphics.svg';
+import iconSpaceDashboard from '../assets/icons/MdOutlineSpaceDashboard.svg';
+import iconExplore from '../assets/icons/MdOutlineSearch.svg';
+import iconStar from '../assets/icons/MdStarBorder.svg';
+import iconTune from '../assets/icons/MdTune.svg';
+import iconDiario from '../assets/icons/MdOutlineEditCalendar.svg';
+import iconMetricas from '../assets/icons/MdInsertChartOutlined.svg';
 import iconSearch from '../assets/icons/search.svg';
-import logo from '../assets/Ediary.png';
+import logo from '../assets/icons/Ediary_Imagotipo.png';
 import './AppShell.css';
 
 interface AppShellProps {
@@ -28,7 +28,7 @@ const navItems: NavItem[] = [
   {
     to: '/app',
     label: 'Moodboards',
-    icon: iconGrid,
+    icon: iconSpaceDashboard,
     isActive: (pathname) =>
       pathname === '/app' ||
       pathname.startsWith('/app/moodboards'),
@@ -36,27 +36,27 @@ const navItems: NavItem[] = [
   {
     to: '/app/explorar',
     label: 'Explorar',
-    icon: iconEye,
+    icon: iconExplore,
   },
   {
     to: '/app/favoritos',
     label: 'Favoritos',
-    icon: iconHeart,
+    icon: iconStar,
   },
   {
     to: '/app/diario',
     label: 'Diario',
-    icon: iconCalendar,
+    icon: iconDiario,
   },
   {
     to: '/app/metricas',
     label: 'Métricas',
-    icon: iconGraphics,
+    icon: iconMetricas,
   },
   {
     to: '/app/ajustes',
     label: 'Ajustes',
-    icon: iconSettings,
+    icon: iconTune,
   },
 ];
 

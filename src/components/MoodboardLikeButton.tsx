@@ -1,6 +1,6 @@
 import { useState, type MouseEvent } from 'react';
 import { likeMoodboard, unlikeMoodboard } from '../api/moodboards';
-import iconHeart from '../assets/icons/heart.svg';
+import iconStar from '../assets/icons/MdStarBorder.svg';
 import './MoodboardLikeButton.css';
 
 interface MoodboardLikeButtonProps {
@@ -29,7 +29,7 @@ export function MoodboardLikeButton({
   if (readOnly) {
     return (
       <span className={className} aria-label={`Me gusta: ${likeCount}`}>
-        <img src={iconHeart} alt="" draggable={false} />
+        <img src={iconStar} alt="" draggable={false} />
         <span>{likeCount}</span>
       </span>
     );
@@ -67,7 +67,7 @@ export function MoodboardLikeButton({
       aria-label={liked ? 'Quitar me gusta' : 'Me gusta'}
       onClick={(event) => void handleClick(event)}
     >
-      <img src={iconHeart} alt="" draggable={false} />
+      <img src={iconStar} alt="" draggable={false} />
       <span>{likeCount}</span>
     </button>
   );

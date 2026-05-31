@@ -22,6 +22,7 @@ import iconText from '../assets/icons/text-size.svg';
 import iconDraw from '../assets/icons/draw.svg';
 import iconCircle from '../assets/icons/circle.svg';
 import iconImage from '../assets/icons/image-add.svg';
+import { ColorPickerButton } from '../components/ColorPickerButton';
 import './FabricMoodboardEditor.css';
 
 const MIN_ZOOM = 0.25;
@@ -930,36 +931,24 @@ export function FabricMoodboardEditor({
             }}
           />
           <div className="fabric-color-controls">
-            <label className="fabric-color-label">
-              Fondo
-              <input
-                type="color"
-                className="fabric-color-input"
-                value={backgroundColor}
-                disabled={loading || busy}
-                onChange={(e) => handleBackgroundColorChange(e.target.value)}
-              />
-            </label>
-            <label className="fabric-color-label">
-              Relleno
-              <input
-                type="color"
-                className="fabric-color-input"
-                value={fillColor}
-                disabled={loading || busy || !fillControlEnabled}
-                onChange={(e) => handleFillColorChange(e.target.value)}
-              />
-            </label>
-            <label className="fabric-color-label">
-              Borde
-              <input
-                type="color"
-                className="fabric-color-input"
-                value={strokeColor}
-                disabled={loading || busy || !strokeControlEnabled}
-                onChange={(e) => handleStrokeColorChange(e.target.value)}
-              />
-            </label>
+            <ColorPickerButton
+              label="Fondo"
+              value={backgroundColor}
+              disabled={loading || busy}
+              onChange={handleBackgroundColorChange}
+            />
+            <ColorPickerButton
+              label="Relleno"
+              value={fillColor}
+              disabled={loading || busy || !fillControlEnabled}
+              onChange={handleFillColorChange}
+            />
+            <ColorPickerButton
+              label="Borde"
+              value={strokeColor}
+              disabled={loading || busy || !strokeControlEnabled}
+              onChange={handleStrokeColorChange}
+            />
           </div>
         </div>
       )}

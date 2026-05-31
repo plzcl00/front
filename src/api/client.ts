@@ -1,6 +1,6 @@
 import { API_URL } from './config';
 import type { ApiErrorBody } from '../types/api';
-import { clearSession, getToken } from '../auth/session';
+import { clearSession, getToken, isAuthRedirectSuppressed } from '../auth/session';
 
 export class ApiError extends Error {
   readonly status: number;
@@ -32,6 +32,9 @@ async function parseErrorMessage(res: Response): Promise<string> {
 }
 
 function handleUnauthorized(): void {
+  if (isAuthRedirectSuppressed()) {
+    return;
+  }
   clearSession();
   if (window.location.pathname !== '/sign-in') {
     window.location.assign('/sign-in');

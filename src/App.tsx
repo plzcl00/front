@@ -20,9 +20,9 @@ import './App.css';
 
 export function App() {
   return (
-    <AuthProvider>
-      <SearchProvider>
-      <BrowserRouter>
+    <BrowserRouter>
+      <AuthProvider>
+        <SearchProvider>
         <Routes>
           <Route
             path="/"
@@ -103,8 +103,8 @@ export function App() {
           <Route path="/u/:username/moodboards/:id" element={<MoodboardViewPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
-      </BrowserRouter>
-      </SearchProvider>
-    </AuthProvider>
+        </SearchProvider>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }

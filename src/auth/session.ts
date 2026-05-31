@@ -2,6 +2,16 @@ const TOKEN_KEY = 'ediary_token';
 const USERNAME_KEY = 'ediary_username';
 const EXPIRES_KEY = 'ediary_expires_at';
 
+let authRedirectSuppressed = false;
+
+export function setAuthRedirectSuppressed(suppressed: boolean): void {
+  authRedirectSuppressed = suppressed;
+}
+
+export function isAuthRedirectSuppressed(): boolean {
+  return authRedirectSuppressed;
+}
+
 export interface StoredSession {
   token: string;
   username: string;

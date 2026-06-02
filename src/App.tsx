@@ -16,7 +16,6 @@ import { NewMoodboardPage } from './pages/NewMoodboardPage';
 import { LegalStubPage } from './pages/LegalStubPage';
 import { DiarioPage } from './pages/DiarioPage';
 import { MetricasPage } from './pages/MetricasPage';
-import './App.css';
 
 export function App() {
   return (

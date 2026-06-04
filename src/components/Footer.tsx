@@ -1,7 +1,10 @@
+//Importacion de la imagen del logo y Link para las anclas / enlaces
 import { Link } from 'react-router-dom';
 import logo from '../assets/Ediary.png';
 
+//COMPONENTE FOOTER del Home, SignIn, SignUp
 export function Footer() {
+  //RENDERIZADO
   return (
     <footer>
       <Link to="/">

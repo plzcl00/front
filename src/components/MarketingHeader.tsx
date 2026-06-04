@@ -2,8 +2,6 @@
 import { Link } from 'react-router-dom';
 //Importaciones del logo
 import logo from '../assets/Ediary.png';
-//Hook personalizado que da acceso al contexto de autenticación
-import { useAuth } from '../auth/AuthContext';
 
 //COMPONENTE HEADER DE Home, si el usuario ha iniciado sesion
 //cambia su contenido

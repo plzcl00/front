@@ -8,6 +8,7 @@
   gap: 0.4rem;
   padding: 0.25rem 0.55rem 0.25rem 0.25rem;
   border: 2px solid rgba(250, 128, 149, 0.45);
+  /*Usa el valor de la variable radius-btn*/
   border-radius: var(--radius-btn);
   background: var(--ediary-white);
   color: var(--ediary-text);

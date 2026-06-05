@@ -1,0 +1,11 @@
+/* Sign-in layout — globals in styles/global.css */
+
+.contenido-pagina--sign-in .form-container {
+  margin-top: 0;
+}
+
+@media (max-width: 640px) {
+  .contenido-pagina--sign-in {
+    padding: 1rem 0.75rem;
+  }
+}

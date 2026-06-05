@@ -1,9 +1,9 @@
 import { Link, useNavigate } from 'react-router-dom';
 import './SignUp.css';
-import { MarketingHeader } from './components/MarketingHeader';
-import { Footer } from './components/Footer';
-import { RegistrationForm } from './components/RegistrationForm';
-import { useAuth } from './auth/AuthContext';
+import { MarketingHeader } from '../components/MarketingHeader';
+import { Footer } from '../components/Footer';
+import { RegistrationForm } from '../components/RegistrationForm';
+import { useAuth } from '../auth/AuthContext';
 
 export function SignUp() {
   const { register } = useAuth();

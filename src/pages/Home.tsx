@@ -1,15 +1,15 @@
 import { Link, useNavigate } from 'react-router-dom';
 import './Home.css';
-import sectionMoodboard from './assets/home/moodboardMuestra.png';
-import sectionExplore from './assets/home/exploreMuestra.png';
-import sectionDiary from './assets/home/metricsMuestra.png';
-import sectionCalendar from './assets/home/calendarMuestra.png';
-import sectionDevices from './assets/home/multidevice.jpg';
-import sectionWelcome from './assets/home/processing.svg';
-import { MarketingHeader } from './components/MarketingHeader';
-import { Footer } from './components/Footer';
-import { RegistrationForm } from './components/RegistrationForm';
-import { useAuth } from './auth/AuthContext';
+import sectionMoodboard from '../assets/home/moodboardMuestra.png';
+import sectionExplore from '../assets/home/exploreMuestra.png';
+import sectionDiary from '../assets/home/metricsMuestra.png';
+import sectionCalendar from '../assets/home/calendarMuestra.png';
+import sectionDevices from '../assets/home/multidevice.jpg';
+import sectionWelcome from '../assets/home/processing.svg';
+import { MarketingHeader } from '../components/MarketingHeader';
+import { Footer } from '../components/Footer';
+import { RegistrationForm } from '../components/RegistrationForm';
+import { useAuth } from '../auth/AuthContext';
 
 export function Home() {
   const { register, isAuthenticated } = useAuth();
